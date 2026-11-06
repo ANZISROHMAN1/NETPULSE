@@ -1,0 +1,1614 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>NETPULSE - Branch Bogor Sukabumi</title>
+<link rel="icon" type="image/jpeg" href="/logo.jpg">
+<link rel="apple-touch-icon" href="/logo.jpg">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@500;700&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.3/dist/chart.umd.min.js"></script>
+<style>
+  :root {
+    --font-main: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    --font-mono: 'JetBrains Mono', monospace;
+
+    /* Theme: Light */
+    --bg-body: #f8fafc;
+    --bg-surface: #ffffff;
+    --bg-surface-elevated: #ffffff;
+    --bg-subtle: #f1f5f9;
+    --border-color: #e2e8f0;
+    --border-color-strong: #cbd5e1;
+    --text-primary: #0f172a;
+    --text-secondary: #475569;
+    --text-muted: #64748b;
+
+    /* Telkom / Enterprise Accents */
+    --brand-primary: #dc2626; /* Telkom Red */
+    --brand-blue: #0284c7;
+    --brand-navy: #0f3b6d;
+    --brand-accent: #3b82f6;
+
+    /* Warna Format Google Sheet Asli (Pastel) */
+    --sheet-ggn: #cfe2f3;
+    --sheet-ggn-text: #075985;
+    --sheet-lis: #e2e8f0;
+    --sheet-lis-text: #1e293b;
+    --sheet-avail: #fce8e6;
+    --sheet-avail-text: #991b1b;
+    --sheet-gaul: #d9ead3;
+    --sheet-gaul-text: #166534;
+    --sheet-ag: #fce8e6;
+    --sheet-ag-text: #991b1b;
+    --sheet-ttr: #e0e7ff;
+    --sheet-ttr-text: #3730a3;
+
+    /* Modern Heatmap Colors */
+    --sla-green: #dcfce7;
+    --sla-green-text: #15803d;
+    --sla-yellow: #fef9c3;
+    --sla-yellow-text: #854d0e;
+    --sla-red: #fee2e2;
+    --sla-red-text: #b91c1c;
+
+    --radius-sm: 6px;
+    --radius-md: 10px;
+    --radius-lg: 14px;
+    --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+    --shadow-md: 0 4px 12px -2px rgba(15, 23, 42, 0.06), 0 2px 6px -1px rgba(15, 23, 42, 0.04);
+    --shadow-lg: 0 10px 25px -3px rgba(15, 23, 42, 0.08), 0 4px 10px -2px rgba(15, 23, 42, 0.03);
+  }
+
+  /* Theme: Dark Mode (Executive War Room) */
+  body.dark-mode {
+    --bg-body: #0b0f19;
+    --bg-surface: #111827;
+    --bg-surface-elevated: #1f2937;
+    --bg-subtle: #1e293b;
+    --border-color: #334155;
+    --border-color-strong: #475569;
+    --text-primary: #f8fafc;
+    --text-secondary: #cbd5e1;
+    --text-muted: #94a3b8;
+
+    --brand-navy: #1e3a8a;
+
+    --sheet-ggn: #172554;
+    --sheet-ggn-text: #93c5fd;
+    --sheet-lis: #1e293b;
+    --sheet-lis-text: #e2e8f0;
+    --sheet-avail: #3f1218;
+    --sheet-avail-text: #fca5a5;
+    --sheet-gaul: #14351f;
+    --sheet-gaul-text: #86efac;
+    --sheet-ag: #3f1218;
+    --sheet-ag-text: #fca5a5;
+    --sheet-ttr: #26235b;
+    --sheet-ttr-text: #c7d2fe;
+
+    --sla-green: #064e3b;
+    --sla-green-text: #6ee7b7;
+    --sla-yellow: #713f12;
+    --sla-yellow-text: #fde047;
+    --sla-red: #7f1d1d;
+    --sla-red-text: #fca5a5;
+  }
+
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    font-family: var(--font-main);
+    background: var(--bg-body);
+    color: var(--text-primary);
+    font-size: 12.5px;
+    line-height: 1.45;
+    transition: background-color 0.25s ease, color 0.25s ease;
+  }
+
+  /* ------------------------------------------------ NAVBAR ------------------------------------------------ */
+  .navbar {
+    background: linear-gradient(135deg, #0b2545 0%, #133e6f 100%);
+    color: #ffffff;
+    padding: 12px 24px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 16px;
+    border-bottom: 2px solid #0ea5e9;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.15);
+    position: sticky;
+    top: 0;
+    z-index: 100;
+  }
+  .nav-left {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+  }
+  .brand-logo {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    text-decoration: none;
+    cursor: pointer;
+  }
+  .brand-avatar-box {
+    width: 76px;
+    height: 76px;
+    border-radius: 50%;
+    overflow: hidden;
+    border: 3px solid #38bdf8;
+    box-shadow: 0 0 20px rgba(56, 189, 248, 0.5), 0 4px 12px rgba(0,0,0,0.35);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: #0b1f3a;
+    flex-shrink: 0;
+    transition: transform 0.25s ease, box-shadow 0.25s ease;
+  }
+  .brand-avatar-box:hover {
+    transform: scale(1.08) rotate(2deg);
+    box-shadow: 0 0 26px rgba(56, 189, 248, 0.8), 0 6px 16px rgba(0,0,0,0.45);
+  }
+  .brand-avatar-img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+  }
+  .brand-text-block {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+  }
+  .brand-title-main {
+    font-size: 28px;
+    font-weight: 900;
+    letter-spacing: 0.05em;
+    color: #ffffff;
+    line-height: 1.05;
+    background: linear-gradient(135deg, #ffffff 40%, #7dd3fc 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+  }
+  .brand-tagline {
+    font-size: 11.5px;
+    font-weight: 700;
+    color: #93c5fd;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    opacity: 0.95;
+    margin-top: 3px;
+  }
+  @media (max-width: 640px) {
+    .brand-avatar-box {
+      width: 54px;
+      height: 54px;
+    }
+    .brand-title-main {
+      font-size: 20px;
+    }
+  }
+  .live-pill {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    background: rgba(16, 185, 129, 0.2);
+    border: 1px solid rgba(16, 185, 129, 0.4);
+    color: #34d399;
+    padding: 3px 10px;
+    border-radius: 999px;
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 0.04em;
+  }
+  .pulse-dot {
+    width: 7px;
+    height: 7px;
+    background: #10b981;
+    border-radius: 50%;
+    box-shadow: 0 0 8px #10b981;
+    animation: pulse 1.8s infinite;
+  }
+  @keyframes pulse {
+    0% { transform: scale(0.95); opacity: 0.8; }
+    50% { transform: scale(1.3); opacity: 1; }
+    100% { transform: scale(0.95); opacity: 0.8; }
+  }
+
+  .nav-right {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-size: 12px;
+  }
+  .countdown-badge {
+    background: rgba(255, 255, 255, 0.1);
+    color: #e2e8f0;
+    padding: 4px 10px;
+    border-radius: 6px;
+    font-family: var(--font-mono);
+    font-size: 11px;
+    border: 1px solid rgba(255, 255, 255, 0.15);
+  }
+  .btn-nav {
+    background: rgba(255, 255, 255, 0.12);
+    color: #ffffff;
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    padding: 6px 13px;
+    border-radius: 7px;
+    font-weight: 600;
+    font-size: 11.5px;
+    cursor: pointer;
+    text-decoration: none;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    transition: all 0.2s;
+  }
+  .btn-nav:hover {
+    background: rgba(255, 255, 255, 0.22);
+    border-color: rgba(255, 255, 255, 0.4);
+    transform: translateY(-1px);
+  }
+  .btn-nav-primary {
+    background: linear-gradient(135deg, #0284c7 0%, #0369a1 100%);
+    border: none;
+    box-shadow: 0 2px 6px rgba(2, 132, 199, 0.4);
+  }
+  .btn-nav-primary:hover {
+    background: linear-gradient(135deg, #0369a1 0%, #075985 100%);
+  }
+
+  /* ------------------------------------------------ TOP BANNER & METADATA ------------------------------------------------ */
+  .app-container {
+    max-width: 1740px;
+    margin: 18px auto 60px;
+    padding: 0 20px;
+  }
+  .meta-strip {
+    background: var(--bg-surface);
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow-sm);
+    padding: 14px 20px;
+    margin-bottom: 18px;
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    align-items: center;
+    gap: 16px;
+  }
+  .meta-items {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 18px;
+    font-size: 12px;
+  }
+  .meta-item {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+  }
+  .meta-label { color: var(--text-muted); font-weight: 500; }
+  .meta-value { color: var(--text-primary); font-weight: 700; }
+  .filter-tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+  }
+  .tag {
+    background: var(--bg-subtle);
+    border: 1px solid var(--border-color);
+    color: var(--text-secondary);
+    padding: 2px 8px;
+    border-radius: 4px;
+    font-size: 11px;
+    font-weight: 600;
+  }
+  .tag-accent {
+    background: rgba(14, 165, 233, 0.1);
+    border-color: rgba(14, 165, 233, 0.3);
+    color: #0284c7;
+  }
+  body.dark-mode .tag-accent { color: #38bdf8; }
+
+  /* ------------------------------------------------ HERO KPI CARDS ------------------------------------------------ */
+  .kpi-grid {
+    display: grid;
+    grid-template-columns: repeat(5, 1fr);
+    gap: 14px;
+    margin-bottom: 22px;
+  }
+  @media (max-width: 1100px) {
+    .kpi-grid { grid-template-columns: repeat(3, 1fr); }
+  }
+  @media (max-width: 700px) {
+    .kpi-grid { grid-template-columns: repeat(2, 1fr); }
+  }
+  .kpi-card {
+    background: var(--bg-surface);
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-lg);
+    padding: 16px 18px;
+    box-shadow: var(--shadow-sm);
+    transition: all 0.25s ease;
+    position: relative;
+    overflow: hidden;
+  }
+  .kpi-card:hover {
+    transform: translateY(-3px);
+    box-shadow: var(--shadow-md);
+    border-color: var(--brand-accent);
+  }
+  .kpi-card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 3px;
+    background: var(--card-accent, #0284c7);
+  }
+  .kpi-top {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 8px;
+  }
+  .kpi-title {
+    font-size: 11.5px;
+    font-weight: 700;
+    color: var(--text-muted);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+  }
+  .kpi-icon-wrap {
+    width: 30px;
+    height: 30px;
+    border-radius: 8px;
+    background: var(--bg-subtle);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--card-accent, #0284c7);
+  }
+  .kpi-num {
+    font-family: var(--font-mono);
+    font-size: 32px;
+    font-weight: 800;
+    line-height: 1;
+    color: var(--text-primary);
+    margin-bottom: 6px;
+  }
+  .kpi-footer {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    font-size: 11px;
+    color: var(--text-muted);
+  }
+  .kpi-pill {
+    padding: 2px 7px;
+    border-radius: 999px;
+    font-size: 10px;
+    font-weight: 700;
+  }
+
+  /* ------------------------------------------------ CONTROLS & TOOLBAR ------------------------------------------------ */
+  .toolbar {
+    background: var(--bg-surface);
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-lg);
+    padding: 12px 18px;
+    margin-bottom: 20px;
+    box-shadow: var(--shadow-sm);
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    align-items: center;
+    gap: 14px;
+  }
+  .tab-group {
+    display: inline-flex;
+    background: var(--bg-subtle);
+    padding: 4px;
+    border-radius: var(--radius-md);
+    border: 1px solid var(--border-color);
+    gap: 4px;
+  }
+  .tab-btn {
+    border: none;
+    background: transparent;
+    padding: 7px 16px;
+    border-radius: var(--radius-sm);
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--text-secondary);
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    gap: 7px;
+    transition: all 0.2s ease;
+  }
+  .tab-btn:hover { color: var(--text-primary); }
+  .tab-btn.active {
+    background: var(--bg-surface);
+    color: #0284c7;
+    font-weight: 700;
+    box-shadow: 0 1px 4px rgba(0,0,0,0.08);
+  }
+  body.dark-mode .tab-btn.active { color: #38bdf8; }
+
+  .filter-controls {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 10px;
+  }
+  .form-select, .form-input {
+    background: var(--bg-surface);
+    border: 1px solid var(--border-color);
+    color: var(--text-primary);
+    padding: 7px 12px;
+    border-radius: var(--radius-sm);
+    font-size: 12px;
+    font-family: inherit;
+    outline: none;
+    transition: border-color 0.2s;
+  }
+  .form-select:focus, .form-input:focus {
+    border-color: #0284c7;
+    box-shadow: 0 0 0 3px rgba(2, 132, 199, 0.15);
+  }
+  .color-mode-select {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 11.5px;
+    color: var(--text-muted);
+  }
+
+  /* ------------------------------------------------ SECTION BLOCKS ------------------------------------------------ */
+  .block-box {
+    background: var(--bg-surface);
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow-sm);
+    margin-bottom: 24px;
+    overflow: hidden;
+  }
+  .block-header-bar {
+    background: var(--bg-subtle);
+    border-bottom: 1px solid var(--border-color);
+    padding: 12px 20px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+  .block-title-text {
+    font-size: 13.5px;
+    font-weight: 800;
+    color: var(--text-primary);
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin: 0;
+  }
+  .block-subtitle {
+    font-size: 11.5px;
+    color: var(--text-muted);
+  }
+
+  /* ------------------------------------------------ SPLIT TABLE LAYOUT ------------------------------------------------ */
+  .tables-grid-split {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 0;
+  }
+  .tables-grid-split.layout-stacked {
+    grid-template-columns: 1fr !important;
+  }
+  .table-scroll-container {
+    overflow-x: auto;
+    border-right: 1px solid var(--border-color);
+    max-height: 620px;
+    position: relative;
+  }
+  .table-scroll-container:last-child {
+    border-right: none;
+  }
+  .tables-grid-split.layout-stacked .table-scroll-container {
+    border-right: none !important;
+    border-bottom: 1px solid var(--border-color);
+    max-height: none;
+  }
+
+  /* ------------------------------------------------ TABLE STYLING ------------------------------------------------ */
+  table.data-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 11.5px;
+    text-align: right;
+  }
+  table.data-table th, table.data-table td {
+    padding: 6px 8px;
+    border: 1px solid var(--border-color);
+    white-space: nowrap;
+    line-height: 1.35;
+  }
+  table.data-table th {
+    font-weight: 700;
+    text-align: center;
+    position: sticky;
+    top: 0;
+    z-index: 10;
+    font-size: 11px;
+    backdrop-filter: blur(4px);
+    cursor: default;
+    user-select: none;
+  }
+  table.data-table thead tr:nth-child(2) th {
+    top: 27px; /* sticky row 2 */
+    z-index: 9;
+  }
+
+  table.data-table th.sortable:hover {
+    filter: brightness(0.95);
+    cursor: pointer;
+  }
+  table.data-table th.sortable::after {
+    content: ' ⇅';
+    opacity: 0.4;
+    font-size: 9px;
+  }
+  table.data-table th.sorted-asc::after { content: ' ▲'; opacity: 1; color: #dc2626; }
+  table.data-table th.sorted-desc::after { content: ' ▼'; opacity: 1; color: #dc2626; }
+
+  table.data-table td.text-left, table.data-table th.text-left { text-align: left; }
+  table.data-table td.text-center { text-align: center; }
+  table.data-table td.font-bold { font-weight: 700; }
+  table.data-table td.font-mono { font-family: var(--font-mono); }
+  table.data-table tr:hover td { background-color: var(--bg-subtle) !important; }
+
+  /* Baris Total */
+  table.data-table tr.row-total td {
+    background-color: var(--bg-subtle);
+    font-weight: 800;
+    border-top: 2px solid var(--border-color-strong);
+  }
+
+  /* --- Warna Khas Google Sheet (Mode Classic) --- */
+  body.color-classic th.th-area { background: var(--sheet-ggn); color: var(--sheet-ggn-text); }
+  body.color-classic th.th-ggn { background: var(--sheet-ggn); color: var(--sheet-ggn-text); }
+  body.color-classic th.th-lis { background: var(--sheet-lis); color: var(--sheet-lis-text); }
+  body.color-classic th.th-avail { background: var(--sheet-avail); color: var(--sheet-avail-text); }
+  body.color-classic th.th-gaul { background: var(--sheet-gaul); color: var(--sheet-gaul-text); }
+  body.color-classic th.th-ag { background: var(--sheet-ag); color: var(--sheet-ag-text); }
+  body.color-classic th.th-ttr { background: var(--sheet-ttr); color: var(--sheet-ttr-text); }
+
+  body.color-classic th.sub-ggn { background: var(--sheet-ggn); color: var(--sheet-ggn-text); font-size: 10px; }
+  body.color-classic th.sub-lis { background: var(--sheet-lis); color: var(--sheet-lis-text); font-size: 10px; }
+  body.color-classic th.sub-avail { background: var(--sheet-avail); color: var(--sheet-avail-text); font-size: 10px; }
+  body.color-classic th.sub-gaul { background: var(--sheet-gaul); color: var(--sheet-gaul-text); font-size: 10px; }
+  body.color-classic th.sub-ag { background: var(--sheet-ag); color: var(--sheet-ag-text); font-size: 10px; }
+  body.color-classic th.sub-ttr { background: var(--sheet-ttr); color: var(--sheet-ttr-text); font-size: 10px; }
+
+  body.color-classic td.cell-pink {
+    background-color: var(--sheet-avail);
+    color: var(--sheet-avail-text);
+    font-weight: 600;
+  }
+
+  /* --- Warna Smart SLA Heatmap (Mode Modern) --- */
+  body.color-heatmap th.th-area { background: #0f2c4d; color: #fff; }
+  body.color-heatmap th.th-ggn { background: #0284c7; color: #fff; }
+  body.color-heatmap th.th-lis { background: #475569; color: #fff; }
+  body.color-heatmap th.th-avail { background: #059669; color: #fff; }
+  body.color-heatmap th.th-gaul { background: #d97706; color: #fff; }
+  body.color-heatmap th.th-ag { background: #059669; color: #fff; }
+  body.color-heatmap th.th-ttr { background: #4f46e5; color: #fff; }
+
+  body.color-heatmap th.sub-ggn { background: #e0f2fe; color: #0369a1; }
+  body.color-heatmap th.sub-lis { background: #f1f5f9; color: #334155; }
+  body.color-heatmap th.sub-avail { background: #d1fae5; color: #065f46; }
+  body.color-heatmap th.sub-gaul { background: #fef3c7; color: #92400e; }
+  body.color-heatmap th.sub-ag { background: #d1fae5; color: #065f46; }
+  body.color-heatmap th.sub-ttr { background: #e0e7ff; color: #3730a3; }
+
+  body.color-heatmap td.cell-sla-good { background: var(--sla-green); color: var(--sla-green-text); font-weight: 700; }
+  body.color-heatmap td.cell-sla-warn { background: var(--sla-yellow); color: var(--sla-yellow-text); font-weight: 700; }
+  body.color-heatmap td.cell-sla-bad { background: var(--sla-red); color: var(--sla-red-text); font-weight: 800; }
+
+  /* ------------------------------------------------ EXECUTIVE CHARTS ------------------------------------------------ */
+  .charts-grid-view {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 18px;
+    padding: 18px;
+  }
+  @media (max-width: 950px) {
+    .charts-grid-view { grid-template-columns: 1fr; }
+  }
+  .chart-box-card {
+    background: var(--bg-surface);
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-md);
+    padding: 16px;
+    height: 320px;
+    position: relative;
+    box-shadow: var(--shadow-sm);
+  }
+  .chart-box-card h4 {
+    margin: 0 0 10px;
+    font-size: 13px;
+    font-weight: 700;
+    color: var(--text-primary);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+  .chart-canvas-wrap {
+    height: 255px;
+    position: relative;
+  }
+
+  /* ------------------------------------------------ TOP 10 RANKING ALERT ------------------------------------------------ */
+  .ranking-table-card {
+    padding: 18px;
+  }
+  .rank-badge {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 22px;
+    height: 22px;
+    border-radius: 50%;
+    font-size: 11px;
+    font-weight: 800;
+  }
+  .rank-1 { background: #fee2e2; color: #b91c1c; border: 1px solid #f87171; }
+  .rank-2 { background: #ffedd5; color: #c2410c; border: 1px solid #fb923c; }
+  .rank-3 { background: #fef9c3; color: #a16207; border: 1px solid #facc15; }
+  .rank-other { background: var(--bg-subtle); color: var(--text-muted); }
+
+  .hidden { display: none !important; }
+</style>
+</head>
+<body class="color-classic">
+
+<!-- NAVBAR -->
+<nav class="navbar">
+  <div class="nav-left">
+    <div class="brand-logo" title="NETPULSE - Branch Bogor Sukabumi">
+      <div class="brand-avatar-box">
+        <img src="/logo.jpg" alt="NETPULSE Logo" class="brand-avatar-img">
+      </div>
+      <div class="brand-text-block">
+        <div class="brand-title-main">NETPULSE</div>
+        <div class="brand-tagline">Branch Bogor Sukabumi</div>
+      </div>
+    </div>
+    <div class="live-pill">
+      <div class="pulse-dot"></div>
+      <span>LIVE TELEMETRY</span>
+    </div>
+  </div>
+  <div class="nav-right">
+    <div style="display:flex; align-items:center; gap:6px;">
+      <select id="sel-sync-interval" class="btn-nav" style="padding:5px 8px; font-family:var(--font-mono); font-size:11px; cursor:pointer;" title="Pilih interval waktu auto-sync">
+        <option value="60">Sync: 1 Mnt</option>
+        <option value="120" selected>Sync: 2 Mnt</option>
+        <option value="300">Sync: 5 Mnt</option>
+        <option value="0">Sync: Manual</option>
+      </select>
+      <span class="countdown-badge" id="lbl-countdown" title="Hitung mundur auto-sync">02:00</span>
+    </div>
+    <button class="btn-nav" id="btn-theme-toggle" title="Toggle Tema Gelap/Terang">
+      <span id="theme-icon">🌙</span> <span id="theme-label">Mode Gelap</span>
+    </button>
+    <button class="btn-nav" id="btn-fullscreen" title="Layar Penuh (War Room)">
+      ⛶ Fullscreen
+    </button>
+    <button class="btn-nav btn-nav-primary" id="btn-refresh-data">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M21.5 2v6h-6M21.34 15.57a10 10 0 1 1-.57-8.38l5.67-5.67"/>
+      </svg>
+      Refresh Sheet
+    </button>
+    <a class="btn-nav" id="btn-open-sheet" target="_blank" rel="noopener">
+      Sheet Asli ↗
+    </a>
+  </div>
+</nav>
+
+<div class="app-container">
+
+  <!-- METADATA & FILTER BAR -->
+  <div class="meta-strip">
+    <div class="meta-items">
+      <div class="meta-item">
+        <span class="tag" style="background:rgba(2,132,199,0.12); border-color:rgba(2,132,199,0.3); color:#0284c7; font-weight:800; letter-spacing:0.04em;">⚡ NETPULSE</span>
+      </div>
+      <div class="meta-item">
+        <span class="meta-label">Tanggal:</span>
+        <span class="meta-value" id="disp-tanggal">-</span>
+      </div>
+      <div class="meta-item">
+        <span class="meta-label">District:</span>
+        <span class="meta-value tag tag-accent" id="disp-district">-</span>
+      </div>
+      <div class="meta-item">
+        <span class="meta-label">Service Area:</span>
+        <span class="meta-value" id="disp-sa">-</span>
+      </div>
+      <div class="meta-item">
+        <span class="meta-label">Filter:</span>
+        <div class="filter-tags">
+          <span class="tag">GAUL: <b id="tag-gaul">All</b></span>
+          <span class="tag">GAMAS: <b id="tag-gamas">All</b></span>
+          <span class="tag">TIKET2: <b id="tag-tiket2">All</b></span>
+          <span class="tag">FFG: <b id="tag-ffg">All</b></span>
+        </div>
+      </div>
+    </div>
+    <div style="font-size: 11px; color: var(--text-muted); display:flex; align-items:center; gap:6px;">
+      <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline>
+      </svg>
+      <span id="disp-update">Update: -</span>
+      <span style="opacity: 0.5;">|</span>
+      <span id="disp-last-sync">Sync: -</span>
+    </div>
+  </div>
+
+  <!-- HERO KPI CARDS -->
+  <div class="kpi-grid">
+    <!-- 1. Total Tiket -->
+    <div class="kpi-card" style="--card-accent: #dc2626;">
+      <div class="kpi-top">
+        <span class="kpi-title">TOTAL TIKET</span>
+        <div class="kpi-icon-wrap" style="color:#dc2626; background:rgba(220, 38, 38, 0.1);">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M2 9a3 3 0 0 1 0 6v2a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2v-2a3 3 0 0 1 0-6V7a2 2 0 0 0-2-2H4a2 2 0 0 0-2 2z"/></svg>
+        </div>
+      </div>
+      <div class="kpi-num" id="card-total">-</div>
+      <div class="kpi-footer">
+        <span>Tiket Gangguan Terbuka</span>
+        <span class="kpi-pill" style="background:#fee2e2; color:#b91c1c;">100% Volume</span>
+      </div>
+    </div>
+
+    <!-- 2. HVC -->
+    <div class="kpi-card" style="--card-accent: #0284c7;">
+      <div class="kpi-top">
+        <span class="kpi-title">HVC (DIAMOND + PLATINUM)</span>
+        <div class="kpi-icon-wrap" style="color:#0284c7; background:rgba(2, 132, 199, 0.1);">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M6 3h12l4 6-10 13L2 9z"/></svg>
+        </div>
+      </div>
+      <div class="kpi-num" id="card-hvc" style="color:#0284c7;">-</div>
+      <div class="kpi-footer">
+        <span id="card-hvc-detail">Diamond: - | Platinum: -</span>
+        <span class="kpi-pill" id="card-hvc-pct" style="background:#e0f2fe; color:#0369a1;">-</span>
+      </div>
+    </div>
+
+    <!-- 3. Reguler -->
+    <div class="kpi-card" style="--card-accent: #64748b;">
+      <div class="kpi-top">
+        <span class="kpi-title">REGULER</span>
+        <div class="kpi-icon-wrap" style="color:#64748b; background:rgba(100, 116, 139, 0.1);">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+        </div>
+      </div>
+      <div class="kpi-num" id="card-reguler" style="color:#64748b;">-</div>
+      <div class="kpi-footer">
+        <span>Tiket Pelanggan Reguler</span>
+        <span class="kpi-pill" id="card-reguler-pct" style="background:#f1f5f9; color:#475569;">-</span>
+      </div>
+    </div>
+
+    <!-- 4. STO Aktif -->
+    <div class="kpi-card" style="--card-accent: #16a34a;">
+      <div class="kpi-top">
+        <span class="kpi-title">STO AKTIF</span>
+        <div class="kpi-icon-wrap" style="color:#16a34a; background:rgba(22, 163, 74, 0.1);">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><rect x="4" y="2" width="16" height="20" rx="2" ry="2"/><line x1="9" y1="22" x2="9" y2="22.01"/><line x1="15" y1="22" x2="15" y2="22.01"/><line x1="9" y1="6" x2="9" y2="6.01"/><line x1="15" y1="6" x2="15" y2="6.01"/><line x1="9" y1="10" x2="9" y2="10.01"/><line x1="15" y1="10" x2="15" y2="10.01"/><line x1="9" y1="14" x2="9" y2="14.01"/><line x1="15" y1="14" x2="15" y2="14.01"/><line x1="9" y1="18" x2="9" y2="18.01"/><line x1="15" y1="18" x2="15" y2="18.01"/></svg>
+        </div>
+      </div>
+      <div class="kpi-num" id="card-sto" style="color:#16a34a;">-</div>
+      <div class="kpi-footer">
+        <span>STO Mengalami Gangguan</span>
+        <span class="kpi-pill" style="background:#dcfce7; color:#15803d;">Aktif</span>
+      </div>
+    </div>
+
+    <!-- 5. SA Aktif -->
+    <div class="kpi-card" style="--card-accent: #d97706;">
+      <div class="kpi-top">
+        <span class="kpi-title">SA AKTIF</span>
+        <div class="kpi-icon-wrap" style="color:#d97706; background:rgba(217, 119, 6, 0.1);">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polygon points="1 6 1 22 8 18 16 22 23 18 23 2 16 6 8 2 1 6"/><line x1="8" y1="2" x2="8" y2="18"/><line x1="16" y1="6" x2="16" y2="22"/></svg>
+        </div>
+      </div>
+      <div class="kpi-num" id="card-sa" style="color:#d97706;">-</div>
+      <div class="kpi-footer">
+        <span>Wilayah Service Area</span>
+        <span class="kpi-pill" style="background:#fef3c7; color:#92400e;">11 Terdata</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- TOOLBAR KONTROL -->
+  <div class="toolbar">
+    <div class="tab-group" id="view-tabs">
+      <button class="tab-btn active" data-tab="tables">
+        <span>📋</span> Semua Tabel (Format Sheet)
+      </button>
+      <button class="tab-btn" data-tab="analytics">
+        <span>📊</span> Executive Analytics
+      </button>
+      <button class="tab-btn" data-tab="top-alert">
+        <span>🚨</span> Top 10 STO Alert
+      </button>
+    </div>
+
+    <div class="filter-controls">
+      <!-- Layout Switcher untuk Tabel -->
+      <div class="tab-group" id="layout-switch" style="padding: 2px;">
+        <button class="tab-btn active" data-layout="split" title="Dua tabel berdampingan">↔️ Side-by-Side</button>
+        <button class="tab-btn" data-layout="stacked" title="Tabel bertingkat satu layar penuh">↕️ Full-Width</button>
+      </div>
+
+      <!-- Theme Color Table Switcher -->
+      <div class="color-mode-select">
+        <label for="sel-color-mode">Skema Warna:</label>
+        <select class="form-select" id="sel-color-mode">
+          <option value="classic">🎨 Sheet Asli (Pastel)</option>
+          <option value="heatmap">🔥 Smart SLA Heatmap</option>
+        </select>
+      </div>
+
+      <!-- Filter Dropdown SA -->
+      <select class="form-select" id="sel-sa-filter">
+        <option value="">Semua Service Area</option>
+      </select>
+
+      <!-- Input Pencarian -->
+      <input type="text" class="form-input" id="inp-search" placeholder="🔍 Cari STO / SA..." style="width: 170px;" />
+    </div>
+  </div>
+
+  <!-- ==================== VIEW 1: TABEL LENGKAP ==================== -->
+  <div id="panel-tables">
+
+    <!-- BLOK 1: LIS & SERVICE AVAILABILITY -->
+    <div class="block-box">
+      <div class="block-header-bar">
+        <div>
+          <h3 class="block-title-text">
+            <span>1. TIKET GGN, LIS PELANGGAN &amp; SERVICE AVAILABILITY</span>
+          </h3>
+          <div class="block-subtitle">Perbandingan Service Area (Kiri) dan STO Rincian (Kanan)</div>
+        </div>
+        <div style="font-size: 11px; color: var(--text-muted);" id="counter-b1">
+          Memuat baris...
+        </div>
+      </div>
+      <div class="tables-grid-split" id="grid-b1">
+        <div class="table-scroll-container">
+          <table class="data-table" id="tbl-sa-lis"></table>
+        </div>
+        <div class="table-scroll-container">
+          <table class="data-table" id="tbl-sto-lis"></table>
+        </div>
+      </div>
+    </div>
+
+    <!-- BLOK 2: TIKET GAUL & ASSURANCE GUARANTEE -->
+    <div class="block-box">
+      <div class="block-header-bar">
+        <div>
+          <h3 class="block-title-text">
+            <span>2. TIKET GGN, TIKET GAUL &amp; ASSURANCE GUARANTEE</span>
+          </h3>
+          <div class="block-subtitle">Tingkat jaminan perbaikan (Assurance Guarantee) &amp; gangguan berulang (GAUL)</div>
+        </div>
+        <div style="font-size: 11px; color: var(--text-muted);" id="counter-b2">
+          Memuat baris...
+        </div>
+      </div>
+      <div class="tables-grid-split" id="grid-b2">
+        <div class="table-scroll-container">
+          <table class="data-table" id="tbl-sa-ag"></table>
+        </div>
+        <div class="table-scroll-container">
+          <table class="data-table" id="tbl-sto-ag"></table>
+        </div>
+      </div>
+    </div>
+
+    <!-- BLOK 3: TTR COMPLY PER STO -->
+    <div class="block-box">
+      <div class="block-header-bar">
+        <div>
+          <h3 class="block-title-text">
+            <span>3. TTR COMPLY PER STO (SLA PEMULIHAN)</span>
+          </h3>
+          <div class="block-subtitle">Kepatuhan durasi perbaikan: 3 Jam Diamond &bull; 3 Jam Manja &bull; 6 Jam Platinum &bull; 24 Jam Reguler</div>
+        </div>
+      </div>
+      <div class="table-scroll-container" style="border-right: none; max-height: none;">
+        <table class="data-table" id="tbl-ttr"></table>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- ==================== VIEW 2: EXECUTIVE ANALYTICS ==================== -->
+  <div id="panel-analytics" class="hidden">
+    <div class="block-box">
+      <div class="block-header-bar">
+        <h3 class="block-title-text">📊 EXECUTIVE ANALYTICAL CHARTS</h3>
+        <span class="block-subtitle">Visualisasi performa jaringan &amp; SLA kepatuhan</span>
+      </div>
+      <div class="charts-grid-view">
+        <div class="chart-box-card">
+          <h4>Tiket GGN per Service Area <span>(Stacked Diamond/Platinum/Reguler)</span></h4>
+          <div class="chart-canvas-wrap"><canvas id="canvas-ggn"></canvas></div>
+        </div>
+        <div class="chart-box-card">
+          <h4>Service Availability per Service Area (%) <span>Target SLA: 99.85%</span></h4>
+          <div class="chart-canvas-wrap"><canvas id="canvas-avail"></canvas></div>
+        </div>
+        <div class="chart-box-card">
+          <h4>Tiket GGN vs Tiket GAUL (Gangguan Ulang) <span>Perbandingan Rasio</span></h4>
+          <div class="chart-canvas-wrap"><canvas id="canvas-gaul"></canvas></div>
+        </div>
+        <div class="chart-box-card">
+          <h4>Assurance Guarantee (%) per Service Area <span>Target SLA: 90%</span></h4>
+          <div class="chart-canvas-wrap"><canvas id="canvas-ag"></canvas></div>
+        </div>
+        <div class="chart-box-card">
+          <h4>Komposisi Tiket Berdasarkan Segmen <span>Diamond vs Platinum vs Reguler</span></h4>
+          <div class="chart-canvas-wrap"><canvas id="canvas-donut"></canvas></div>
+        </div>
+        <div class="chart-box-card">
+          <h4>Distribusi Tiket LIS Pelanggan <span>Skala Volume LIS</span></h4>
+          <div class="chart-canvas-wrap"><canvas id="canvas-lis"></canvas></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ==================== VIEW 3: TOP 10 ALERT ==================== -->
+  <div id="panel-top-alert" class="hidden">
+    <div class="block-box">
+      <div class="block-header-bar">
+        <div>
+          <h3 class="block-title-text" style="color:#dc2626;">
+            🚨 TOP 10 STO TERDAMPAK GANGGUAN TERTINGGI
+          </h3>
+          <div class="block-subtitle">Daftar STO yang membutuhkan eskalasi dan mitigasi teknisi prioritas</div>
+        </div>
+      </div>
+      <div class="ranking-table-card">
+        <table class="data-table" id="tbl-top-sto"></table>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<script>
+let RAW_PAYLOAD = null;
+let CHARTS = {};
+let SORT_STATE = { col: null, dir: 'desc' };
+let AUTO_REFRESH_TIMER = 300; // 5 menit
+let TIMER_INTERVAL = null;
+
+// Helper Formatters
+const fmt = n => n == null ? '-' : Number(n).toLocaleString('id-ID');
+const pct = n => n == null ? '-' : Number(n).toFixed(2) + '%';
+
+// Smart SLA Class
+function getSlaClass(val, type = 'avail') {
+  if (val == null) return '';
+  const num = Number(val);
+  if (type === 'avail') {
+    if (num >= 99.85) return 'cell-sla-good';
+    if (num >= 99.70) return 'cell-sla-warn';
+    return 'cell-sla-bad';
+  } else { // AG
+    if (num >= 90.0) return 'cell-sla-good';
+    if (num >= 80.0) return 'cell-sla-warn';
+    return 'cell-sla-bad';
+  }
+}
+
+// ------------------------------------------------ FETCH DATA ------------------------------------------------
+async function loadData(force = false) {
+  const btn = document.getElementById('btn-refresh-data');
+  btn.disabled = true;
+  btn.innerHTML = `
+    <svg class="spin" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M21 12a9 9 0 1 1-6.219-8.56"/></svg>
+    Sinkronisasi...
+  `;
+
+  try {
+    const res = await fetch('/api/data' + (force ? '?force=1' : ''), { cache: 'no-store' });
+    const json = await res.json();
+    if (!res.ok) throw new Error(json.error || 'Gagal memuat');
+
+    RAW_PAYLOAD = json;
+    resetCountdown();
+    renderAll();
+  } catch (err) {
+    alert('Error koneksi Google Sheet: ' + err.message);
+  } finally {
+    btn.disabled = false;
+    btn.innerHTML = `
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M21.5 2v6h-6M21.34 15.57a10 10 0 1 1-.57-8.38l5.67-5.67"/>
+      </svg>
+      Refresh Sheet
+    `;
+  }
+}
+
+// ------------------------------------------------ RENDER UTAMA ------------------------------------------------
+function renderAll() {
+  if (!RAW_PAYLOAD || !RAW_PAYLOAD.data) return;
+  const d = RAW_PAYLOAD.data;
+  const meta = d.meta || {};
+  const cards = d.cards || {};
+
+  // Update Metadata
+  document.getElementById('disp-tanggal').textContent = meta.tanggal || '-';
+  document.getElementById('disp-district').textContent = meta.district || '-';
+  document.getElementById('disp-sa').textContent = meta.service_area || '-';
+  document.getElementById('disp-update').textContent = 'Sheet Update: ' + (meta.update || '-');
+  document.getElementById('disp-last-sync').textContent = 'Sync: ' + new Date(RAW_PAYLOAD.fetched_at * 1000).toLocaleTimeString('id-ID');
+  document.getElementById('btn-open-sheet').href = RAW_PAYLOAD.sheet_url;
+
+  const f = meta.filters || {};
+  document.getElementById('tag-gaul').textContent = f.IS_GAUL || 'All';
+  document.getElementById('tag-gamas').textContent = f.IS_GAMAS || 'All';
+  document.getElementById('tag-tiket2').textContent = f.JENIS_TIKET2 || 'All';
+  document.getElementById('tag-ffg').textContent = f.IS_FFG || 'All';
+
+  // Update KPI Cards
+  document.getElementById('card-total').textContent = fmt(cards.total);
+  document.getElementById('card-hvc').textContent = fmt(cards.hvc);
+  document.getElementById('card-reguler').textContent = fmt(cards.reguler);
+  document.getElementById('card-sto').textContent = fmt(cards.sto_aktif);
+  document.getElementById('card-sa').textContent = fmt(cards.sa_aktif);
+
+  const tot = cards.total || 1;
+  const hvcPct = ((cards.hvc / tot) * 100).toFixed(1) + '%';
+  const regPct = ((cards.reguler / tot) * 100).toFixed(1) + '%';
+  document.getElementById('card-hvc-pct').textContent = hvcPct;
+  document.getElementById('card-reguler-pct').textContent = regPct;
+
+  // Diamond & Platinum Breakdown
+  let diaTot = 0, platTot = 0;
+  (d.lis.sa || []).forEach(r => {
+    diaTot += (r.ggn.diamond || 0);
+    platTot += (r.ggn.platinum || 0);
+  });
+  document.getElementById('card-hvc-detail').textContent = `Dia: ${fmt(diaTot)} | Plat: ${fmt(platTot)}`;
+
+  // Populate SA dropdown filter
+  const selSA = document.getElementById('sel-sa-filter');
+  const prevVal = selSA.value;
+  const saSet = new Set();
+  (d.lis.sa || []).forEach(x => saSet.add(x.name));
+  (d.lis.sto || []).forEach(x => saSet.add(x.sa));
+  const saList = Array.from(saSet).sort();
+  selSA.innerHTML = '<option value="">Semua Service Area</option>' + saList.map(s => `<option value="${s}">${s}</option>`).join('');
+  selSA.value = saSet.has(prevVal) ? prevVal : '';
+
+  renderTables();
+  renderAnalytics();
+  renderTop10Alert();
+}
+
+// ------------------------------------------------ RENDER TABEL ------------------------------------------------
+function renderTables() {
+  const d = RAW_PAYLOAD.data;
+  const filterSA = document.getElementById('sel-sa-filter').value;
+  const searchQ = document.getElementById('inp-search').value.trim().toLowerCase();
+
+  const matchSA = r => (!filterSA || r.name === filterSA) && (!searchQ || r.name.toLowerCase().includes(searchQ));
+  const matchSTO = r => (!filterSA || r.sa === filterSA) && (!searchQ || r.sto.toLowerCase().includes(searchQ) || r.sa.toLowerCase().includes(searchQ));
+
+  // 1. BLOK 1: SERVICE AREA (LIS & AVAILABILITY)
+  const saLis = (d.lis.sa || []).filter(matchSA);
+  document.getElementById('counter-b1').textContent = `Menampilkan ${saLis.length} Service Area`;
+
+  let hSaLis = `
+    <thead>
+      <tr>
+        <th class="th-area text-left" rowspan="2" style="width:130px;">SERVICE AREA</th>
+        <th class="th-ggn" colspan="4">Tiket GGN</th>
+        <th class="th-lis" colspan="4">LIS Pelanggan</th>
+        <th class="th-avail" colspan="4">Service Availability</th>
+      </tr>
+      <tr>
+        <th class="sub-ggn">Dia</th><th class="sub-ggn">Plat</th><th class="sub-ggn">Reg</th><th class="sub-ggn font-bold">Total</th>
+        <th class="sub-lis">Dia</th><th class="sub-lis">Plat</th><th class="sub-lis">Reg</th><th class="sub-lis font-bold">Total</th>
+        <th class="sub-avail">Dia</th><th class="sub-avail">Plat</th><th class="sub-avail">Reg</th><th class="sub-avail font-bold">Total</th>
+      </tr>
+    </thead>
+    <tbody>
+  `;
+  saLis.forEach(r => {
+    hSaLis += `
+      <tr>
+        <td class="text-left font-bold" style="color:var(--text-primary);">${r.name}</td>
+        <td>${fmt(r.ggn.diamond)}</td><td>${fmt(r.ggn.platinum)}</td><td>${fmt(r.ggn.reguler)}</td><td class="font-bold">${fmt(r.ggn.total)}</td>
+        <td>${fmt(r.lis.diamond)}</td><td>${fmt(r.lis.platinum)}</td><td>${fmt(r.lis.reguler)}</td><td class="font-bold">${fmt(r.lis.total)}</td>
+        <td class="cell-pink ${getSlaClass(r.avail.diamond)}">${pct(r.avail.diamond)}</td>
+        <td class="cell-pink ${getSlaClass(r.avail.platinum)}">${pct(r.avail.platinum)}</td>
+        <td class="cell-pink ${getSlaClass(r.avail.reguler)}">${pct(r.avail.reguler)}</td>
+        <td class="cell-pink font-bold ${getSlaClass(r.avail.total)}">${pct(r.avail.total)}</td>
+      </tr>
+    `;
+  });
+  // Total Row SA Blok 1
+  const sum1 = k => ({
+    d: saLis.reduce((a,r) => a + (r[k].diamond||0), 0),
+    p: saLis.reduce((a,r) => a + (r[k].platinum||0), 0),
+    r: saLis.reduce((a,r) => a + (r[k].reguler||0), 0),
+    t: saLis.reduce((a,r) => a + (r[k].total||0), 0)
+  });
+  const tG1 = sum1('ggn'), tL1 = sum1('lis');
+  hSaLis += `
+    <tr class="row-total">
+      <td class="text-left font-bold">TOTAL</td>
+      <td>${fmt(tG1.d)}</td><td>${fmt(tG1.p)}</td><td>${fmt(tG1.r)}</td><td class="font-bold">${fmt(tG1.t)}</td>
+      <td>${fmt(tL1.d)}</td><td>${fmt(tL1.p)}</td><td>${fmt(tL1.r)}</td><td class="font-bold">${fmt(tL1.t)}</td>
+      <td class="cell-pink">-</td><td class="cell-pink">-</td><td class="cell-pink">-</td><td class="cell-pink font-bold">-</td>
+    </tr>
+    </tbody>
+  `;
+  document.getElementById('tbl-sa-lis').innerHTML = hSaLis;
+
+  // 1. BLOK 1: STO (LIS & AVAILABILITY)
+  const stoLis = (d.lis.sto || []).filter(matchSTO);
+  let hStoLis = `
+    <thead>
+      <tr>
+        <th class="th-area text-center" rowspan="2" style="width:65px;">STO</th>
+        <th class="th-area text-left" rowspan="2" style="width:110px;">SERVICE AREA</th>
+        <th class="th-ggn" colspan="4">Tiket GGN</th>
+        <th class="th-lis" colspan="4">LIS Pelanggan</th>
+        <th class="th-avail" colspan="4">Service Availability</th>
+      </tr>
+      <tr>
+        <th class="sub-ggn">Dia</th><th class="sub-ggn">Plat</th><th class="sub-ggn">Reg</th><th class="sub-ggn font-bold">Total</th>
+        <th class="sub-lis">Dia</th><th class="sub-lis">Plat</th><th class="sub-lis">Reg</th><th class="sub-lis font-bold">Total</th>
+        <th class="sub-avail">Dia</th><th class="sub-avail">Plat</th><th class="sub-avail">Reg</th><th class="sub-avail font-bold">Total</th>
+      </tr>
+    </thead>
+    <tbody>
+  `;
+  stoLis.forEach(r => {
+    hStoLis += `
+      <tr>
+        <td class="text-center font-bold" style="color:#0284c7;">${r.sto}</td>
+        <td class="text-left">${r.sa}</td>
+        <td>${fmt(r.ggn.diamond)}</td><td>${fmt(r.ggn.platinum)}</td><td>${fmt(r.ggn.reguler)}</td><td class="font-bold">${fmt(r.ggn.total)}</td>
+        <td>${fmt(r.lis.diamond)}</td><td>${fmt(r.lis.platinum)}</td><td>${fmt(r.lis.reguler)}</td><td class="font-bold">${fmt(r.lis.total)}</td>
+        <td class="cell-pink ${getSlaClass(r.avail.diamond)}">${pct(r.avail.diamond)}</td>
+        <td class="cell-pink ${getSlaClass(r.avail.platinum)}">${pct(r.avail.platinum)}</td>
+        <td class="cell-pink ${getSlaClass(r.avail.reguler)}">${pct(r.avail.reguler)}</td>
+        <td class="cell-pink font-bold ${getSlaClass(r.avail.total)}">${pct(r.avail.total)}</td>
+      </tr>
+    `;
+  });
+  document.getElementById('tbl-sto-lis').innerHTML = hStoLis + '</tbody>';
+
+  // 2. BLOK 2: SERVICE AREA (GAUL & AG)
+  const saAg = (d.ag.sa || []).filter(matchSA);
+  document.getElementById('counter-b2').textContent = `Menampilkan ${saAg.length} Service Area`;
+
+  let hSaAg = `
+    <thead>
+      <tr>
+        <th class="th-area text-left" rowspan="2" style="width:130px;">SERVICE AREA</th>
+        <th class="th-ggn" colspan="4">Tiket GGN</th>
+        <th class="th-gaul" colspan="4">Tiket GAUL</th>
+        <th class="th-ag" colspan="4">Assurance Guarantee</th>
+      </tr>
+      <tr>
+        <th class="sub-ggn">Dia</th><th class="sub-ggn">Plat</th><th class="sub-ggn">Reg</th><th class="sub-ggn font-bold">Total</th>
+        <th class="sub-gaul">Dia</th><th class="sub-gaul">Plat</th><th class="sub-gaul">Reg</th><th class="sub-gaul font-bold">Total</th>
+        <th class="sub-ag">Dia</th><th class="sub-ag">Plat</th><th class="sub-ag">Reg</th><th class="sub-ag font-bold">Total</th>
+      </tr>
+    </thead>
+    <tbody>
+  `;
+  saAg.forEach(r => {
+    hSaAg += `
+      <tr>
+        <td class="text-left font-bold">${r.name}</td>
+        <td>${fmt(r.ggn.diamond)}</td><td>${fmt(r.ggn.platinum)}</td><td>${fmt(r.ggn.reguler)}</td><td class="font-bold">${fmt(r.ggn.total)}</td>
+        <td>${fmt(r.gaul.diamond)}</td><td>${fmt(r.gaul.platinum)}</td><td>${fmt(r.gaul.reguler)}</td><td class="font-bold">${fmt(r.gaul.total)}</td>
+        <td class="cell-pink ${getSlaClass(r.ag.diamond, 'ag')}">${pct(r.ag.diamond)}</td>
+        <td class="cell-pink ${getSlaClass(r.ag.platinum, 'ag')}">${pct(r.ag.platinum)}</td>
+        <td class="cell-pink ${getSlaClass(r.ag.reguler, 'ag')}">${pct(r.ag.reguler)}</td>
+        <td class="cell-pink font-bold ${getSlaClass(r.ag.total, 'ag')}">${pct(r.ag.total)}</td>
+      </tr>
+    `;
+  });
+  // Total Row SA Blok 2
+  const sum2 = k => ({
+    d: saAg.reduce((a,r) => a + (r[k].diamond||0), 0),
+    p: saAg.reduce((a,r) => a + (r[k].platinum||0), 0),
+    r: saAg.reduce((a,r) => a + (r[k].reguler||0), 0),
+    t: saAg.reduce((a,r) => a + (r[k].total||0), 0)
+  });
+  const tG2 = sum2('ggn'), tGaul2 = sum2('gaul');
+  hSaAg += `
+    <tr class="row-total">
+      <td class="text-left font-bold">TOTAL</td>
+      <td>${fmt(tG2.d)}</td><td>${fmt(tG2.p)}</td><td>${fmt(tG2.r)}</td><td class="font-bold">${fmt(tG2.t)}</td>
+      <td>${fmt(tGaul2.d)}</td><td>${fmt(tGaul2.p)}</td><td>${fmt(tGaul2.r)}</td><td class="font-bold">${fmt(tGaul2.t)}</td>
+      <td class="cell-pink">-</td><td class="cell-pink">-</td><td class="cell-pink">-</td><td class="cell-pink font-bold">-</td>
+    </tr>
+    </tbody>
+  `;
+  document.getElementById('tbl-sa-ag').innerHTML = hSaAg;
+
+  // 2. BLOK 2: STO (GAUL & AG)
+  const stoAg = (d.ag.sto || []).filter(matchSTO);
+  let hStoAg = `
+    <thead>
+      <tr>
+        <th class="th-area text-center" rowspan="2" style="width:65px;">STO</th>
+        <th class="th-area text-left" rowspan="2" style="width:110px;">SERVICE AREA</th>
+        <th class="th-ggn" colspan="4">Tiket GGN</th>
+        <th class="th-gaul" colspan="4">Tiket GAUL</th>
+        <th class="th-ag" colspan="4">Assurance Guarantee</th>
+      </tr>
+      <tr>
+        <th class="sub-ggn">Dia</th><th class="sub-ggn">Plat</th><th class="sub-ggn">Reg</th><th class="sub-ggn font-bold">Total</th>
+        <th class="sub-gaul">Dia</th><th class="sub-gaul">Plat</th><th class="sub-gaul">Reg</th><th class="sub-gaul font-bold">Total</th>
+        <th class="sub-ag">Dia</th><th class="sub-ag">Plat</th><th class="sub-ag">Reg</th><th class="sub-ag font-bold">Total</th>
+      </tr>
+    </thead>
+    <tbody>
+  `;
+  stoAg.forEach(r => {
+    hStoAg += `
+      <tr>
+        <td class="text-center font-bold" style="color:#0284c7;">${r.sto}</td>
+        <td class="text-left">${r.sa}</td>
+        <td>${fmt(r.ggn.diamond)}</td><td>${fmt(r.ggn.platinum)}</td><td>${fmt(r.ggn.reguler)}</td><td class="font-bold">${fmt(r.ggn.total)}</td>
+        <td>${fmt(r.gaul.diamond)}</td><td>${fmt(r.gaul.platinum)}</td><td>${fmt(r.gaul.reguler)}</td><td class="font-bold">${fmt(r.gaul.total)}</td>
+        <td class="cell-pink ${getSlaClass(r.ag.diamond, 'ag')}">${pct(r.ag.diamond)}</td>
+        <td class="cell-pink ${getSlaClass(r.ag.platinum, 'ag')}">${pct(r.ag.platinum)}</td>
+        <td class="cell-pink ${getSlaClass(r.ag.reguler, 'ag')}">${pct(r.ag.reguler)}</td>
+        <td class="cell-pink font-bold ${getSlaClass(r.ag.total, 'ag')}">${pct(r.ag.total)}</td>
+      </tr>
+    `;
+  });
+  document.getElementById('tbl-sto-ag').innerHTML = hStoAg + '</tbody>';
+
+  // 3. BLOK 3: TTR COMPLY
+  const ttr = (d.ttr || []).filter(matchSTO);
+  let hTtr = `
+    <thead>
+      <tr>
+        <th class="th-area text-center" rowspan="2" style="width:70px;">STO</th>
+        <th class="th-area text-left" rowspan="2" style="width:130px;">SERVICE AREA</th>
+        <th class="th-area" rowspan="2" style="width:90px;">TOTAL TIKET</th>
+        <th class="th-ttr" colspan="3">TTR 3J DIAMOND</th>
+        <th class="th-ttr" colspan="3">3J MANJA COMPLY</th>
+        <th class="th-ttr" colspan="3">6J COMPLY PLATINUM</th>
+        <th class="th-ttr" colspan="3">24J COMPLY REGULER</th>
+      </tr>
+      <tr>
+        <th class="sub-ttr">Comply</th><th class="sub-ttr">Not</th><th class="sub-ttr font-bold">Total</th>
+        <th class="sub-ttr">Comply</th><th class="sub-ttr">Not</th><th class="sub-ttr font-bold">Total</th>
+        <th class="sub-ttr">Comply</th><th class="sub-ttr">Not</th><th class="sub-ttr font-bold">Total</th>
+        <th class="sub-ttr">Comply</th><th class="sub-ttr">Not</th><th class="sub-ttr font-bold">Total</th>
+      </tr>
+    </thead>
+    <tbody>
+  `;
+  ttr.forEach(r => {
+    hTtr += `
+      <tr>
+        <td class="text-center font-bold" style="color:#0284c7;">${r.sto}</td>
+        <td class="text-left">${r.sa}</td>
+        <td class="font-bold">${fmt(r.total)}</td>
+        <td style="color:#16a34a; font-weight:700;">${fmt(r.diamond.comply)}</td>
+        <td style="${r.diamond.not_comply > 0 ? 'color:#dc2626; font-weight:800; background:rgba(220,38,38,0.06);':''}">${fmt(r.diamond.not_comply)}</td>
+        <td>${fmt(r.diamond.total)}</td>
+        <td style="color:#16a34a; font-weight:700;">${fmt(r.manja.comply)}</td>
+        <td style="${r.manja.not_comply > 0 ? 'color:#dc2626; font-weight:800; background:rgba(220,38,38,0.06);':''}">${fmt(r.manja.not_comply)}</td>
+        <td>${fmt(r.manja.total)}</td>
+        <td style="color:#16a34a; font-weight:700;">${fmt(r.platinum.comply)}</td>
+        <td style="${r.platinum.not_comply > 0 ? 'color:#dc2626; font-weight:800; background:rgba(220,38,38,0.06);':''}">${fmt(r.platinum.not_comply)}</td>
+        <td>${fmt(r.platinum.total)}</td>
+        <td style="color:#16a34a; font-weight:700;">${fmt(r.reguler.comply)}</td>
+        <td style="${r.reguler.not_comply > 0 ? 'color:#dc2626; font-weight:800; background:rgba(220,38,38,0.06);':''}">${fmt(r.reguler.not_comply)}</td>
+        <td>${fmt(r.reguler.total)}</td>
+      </tr>
+    `;
+  });
+  document.getElementById('tbl-ttr').innerHTML = hTtr + '</tbody>';
+}
+
+// ------------------------------------------------ RENDER TOP 10 ALERT ------------------------------------------------
+function renderTop10Alert() {
+  const d = RAW_PAYLOAD.data;
+  const stoList = [...(d.lis.sto || [])];
+  stoList.sort((a, b) => (b.ggn.total || 0) - (a.ggn.total || 0));
+  const top10 = stoList.slice(0, 10);
+
+  let html = `
+    <thead>
+      <tr>
+        <th class="th-area" style="width:40px;">RANK</th>
+        <th class="th-area text-center" style="width:80px;">STO</th>
+        <th class="th-area text-left" style="width:160px;">SERVICE AREA</th>
+        <th class="th-ggn" style="width:100px;">TOTAL TIKET</th>
+        <th class="th-ggn" style="width:80px;">DIAMOND</th>
+        <th class="th-ggn" style="width:80px;">PLATINUM</th>
+        <th class="th-ggn" style="width:80px;">REGULER</th>
+        <th class="th-avail" style="width:120px;">AVAILABILITY</th>
+        <th class="th-ag" style="width:120px;">ASSURANCE GUARANTEE</th>
+        <th class="th-lis" style="width:120px;">LIS TOTAL</th>
+      </tr>
+    </thead>
+    <tbody>
+  `;
+
+  top10.forEach((r, idx) => {
+    const rankClass = idx === 0 ? 'rank-1' : idx === 1 ? 'rank-2' : idx === 2 ? 'rank-3' : 'rank-other';
+    // Cari data AG untuk STO ini
+    const agMatch = (d.ag.sto || []).find(x => x.sto === r.sto);
+    const agVal = agMatch ? agMatch.ag.total : null;
+
+    html += `
+      <tr>
+        <td class="text-center"><span class="rank-badge ${rankClass}">${idx + 1}</span></td>
+        <td class="text-center font-bold" style="color:#0284c7; font-size:13px;">${r.sto}</td>
+        <td class="text-left font-bold">${r.sa}</td>
+        <td class="font-bold font-mono" style="font-size:14px; color:#dc2626;">${fmt(r.ggn.total)}</td>
+        <td style="${r.ggn.diamond > 0 ? 'color:#6366f1; font-weight:700;':''}">${fmt(r.ggn.diamond)}</td>
+        <td style="${r.ggn.platinum > 0 ? 'color:#0284c7; font-weight:700;':''}">${fmt(r.ggn.platinum)}</td>
+        <td>${fmt(r.ggn.reguler)}</td>
+        <td class="font-bold ${getSlaClass(r.avail.total)}">${pct(r.avail.total)}</td>
+        <td class="font-bold ${getSlaClass(agVal, 'ag')}">${pct(agVal)}</td>
+        <td class="font-mono">${fmt(r.lis.total)}</td>
+      </tr>
+    `;
+  });
+
+  document.getElementById('tbl-top-sto').innerHTML = html + '</tbody>';
+}
+
+// ------------------------------------------------ RENDER ANALYTICS ------------------------------------------------
+function renderAnalytics() {
+  const d = RAW_PAYLOAD.data;
+  const sa = d.lis.sa || [];
+  const labels = sa.map(r => r.name);
+
+  const init = (id, cfg) => {
+    if (CHARTS[id]) CHARTS[id].destroy();
+    CHARTS[id] = new Chart(document.getElementById(id), cfg);
+  };
+
+  // 1. GGN Stacked Bar
+  init('canvas-ggn', {
+    type: 'bar',
+    data: {
+      labels: labels,
+      datasets: [
+        { label: 'Diamond', data: sa.map(r => r.ggn.diamond), backgroundColor: '#6366f1', borderRadius: 4 },
+        { label: 'Platinum', data: sa.map(r => r.ggn.platinum), backgroundColor: '#0ea5e9', borderRadius: 4 },
+        { label: 'Reguler', data: sa.map(r => r.ggn.reguler), backgroundColor: '#94a3b8', borderRadius: 4 }
+      ]
+    },
+    options: {
+      responsive: true, maintainAspectRatio: false,
+      plugins: { legend: { position: 'top' } },
+      scales: { x: { stacked: true }, y: { stacked: true, beginAtZero: true } }
+    }
+  });
+
+  // 2. Service Availability Bar dengan Target Line
+  init('canvas-avail', {
+    type: 'bar',
+    data: {
+      labels: labels,
+      datasets: [{
+        label: 'Availability (%)',
+        data: sa.map(r => r.avail.total),
+        backgroundColor: sa.map(r => r.avail.total >= 99.85 ? '#10b981' : '#f59e0b'),
+        borderRadius: 5
+      }]
+    },
+    options: {
+      responsive: true, maintainAspectRatio: false,
+      scales: { y: { min: 99.5, max: 100 } },
+      plugins: { legend: { display: false } }
+    }
+  });
+
+  // 3. Tiket GGN vs Tiket GAUL
+  init('canvas-gaul', {
+    type: 'bar',
+    data: {
+      labels: labels,
+      datasets: [
+        { label: 'Tiket GGN (Total)', data: sa.map(r => r.ggn.total), backgroundColor: '#0284c7', borderRadius: 4 },
+        { label: 'Tiket GAUL (Ulang)', data: (d.ag.sa || []).map(r => r.gaul.total), backgroundColor: '#ef4444', borderRadius: 4 }
+      ]
+    },
+    options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { position: 'top' } } }
+  });
+
+  // 4. Assurance Guarantee
+  init('canvas-ag', {
+    type: 'bar',
+    data: {
+      labels: labels,
+      datasets: [{
+        label: 'Assurance Guarantee (%)',
+        data: (d.ag.sa || []).map(r => r.ag.total),
+        backgroundColor: (d.ag.sa || []).map(r => r.ag.total >= 90 ? '#10b981' : r.ag.total >= 80 ? '#f59e0b' : '#ef4444'),
+        borderRadius: 5
+      }]
+    },
+    options: {
+      responsive: true, maintainAspectRatio: false,
+      scales: { y: { min: 70, max: 100 } },
+      plugins: { legend: { display: false } }
+    }
+  });
+
+  // 5. Donut Komposisi
+  let totDia = 0, totPlat = 0, totReg = 0;
+  sa.forEach(r => {
+    totDia += (r.ggn.diamond || 0);
+    totPlat += (r.ggn.platinum || 0);
+    totReg += (r.ggn.reguler || 0);
+  });
+  init('canvas-donut', {
+    type: 'doughnut',
+    data: {
+      labels: ['Diamond', 'Platinum', 'Reguler'],
+      datasets: [{
+        data: [totDia, totPlat, totReg],
+        backgroundColor: ['#6366f1', '#0ea5e9', '#94a3b8'],
+        borderWidth: 2
+      }]
+    },
+    options: {
+      responsive: true, maintainAspectRatio: false,
+      plugins: { legend: { position: 'right' } }
+    }
+  });
+
+  // 6. LIS Total Bar
+  init('canvas-lis', {
+    type: 'bar',
+    data: {
+      labels: labels,
+      datasets: [{
+        label: 'LIS Pelanggan Total',
+        data: sa.map(r => r.lis.total),
+        backgroundColor: '#3b82f6',
+        borderRadius: 5
+      }]
+    },
+    options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } } }
+  });
+}
+
+// ------------------------------------------------ COUNTDOWN TIMER ------------------------------------------------
+function resetCountdown() {
+  if (TIMER_INTERVAL) clearInterval(TIMER_INTERVAL);
+  const selEl = document.getElementById('sel-sync-interval');
+  const selVal = selEl ? Number(selEl.value) : 120;
+  if (selVal <= 0) {
+    document.getElementById('lbl-countdown').textContent = 'Manual';
+    return;
+  }
+  AUTO_REFRESH_TIMER = selVal;
+  updateTimerDisplay(AUTO_REFRESH_TIMER);
+
+  TIMER_INTERVAL = setInterval(() => {
+    AUTO_REFRESH_TIMER--;
+    if (AUTO_REFRESH_TIMER <= 0) {
+      clearInterval(TIMER_INTERVAL);
+      loadData(true);
+    } else {
+      updateTimerDisplay(AUTO_REFRESH_TIMER);
+    }
+  }, 1000);
+}
+
+function updateTimerDisplay(sec) {
+  const m = String(Math.floor(sec / 60)).padStart(2, '0');
+  const s = String(sec % 60).padStart(2, '0');
+  document.getElementById('lbl-countdown').textContent = `${m}:${s}`;
+}
+
+// ------------------------------------------------ EVENT LISTENERS ------------------------------------------------
+document.getElementById('btn-refresh-data').addEventListener('click', () => loadData(true));
+document.getElementById('sel-sync-interval').addEventListener('change', resetCountdown);
+document.getElementById('sel-sa-filter').addEventListener('change', renderTables);
+document.getElementById('inp-search').addEventListener('input', renderTables);
+
+// Switch Skema Warna Tabel
+document.getElementById('sel-color-mode').addEventListener('change', e => {
+  document.body.classList.remove('color-classic', 'color-heatmap');
+  document.body.classList.add(e.target.value === 'heatmap' ? 'color-heatmap' : 'color-classic');
+});
+
+// Switch Tab View (Tabel / Analytics / Top 10)
+document.getElementById('view-tabs').addEventListener('click', e => {
+  const btn = e.target.closest('.tab-btn');
+  if (!btn) return;
+  document.querySelectorAll('#view-tabs .tab-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+
+  const tab = btn.dataset.tab;
+  document.getElementById('panel-tables').classList.toggle('hidden', tab !== 'tables');
+  document.getElementById('panel-analytics').classList.toggle('hidden', tab !== 'analytics');
+  document.getElementById('panel-top-alert').classList.toggle('hidden', tab !== 'top-alert');
+});
+
+// Switch Layout Tabel (Side-by-Side vs Stacked Full Width)
+document.getElementById('layout-switch').addEventListener('click', e => {
+  const btn = e.target.closest('.tab-btn');
+  if (!btn) return;
+  document.querySelectorAll('#layout-switch .tab-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+
+  const isStacked = btn.dataset.layout === 'stacked';
+  document.getElementById('grid-b1').classList.toggle('layout-stacked', isStacked);
+  document.getElementById('grid-b2').classList.toggle('layout-stacked', isStacked);
+});
+
+// Toggle Dark Mode
+const btnTheme = document.getElementById('btn-theme-toggle');
+btnTheme.addEventListener('click', () => {
+  document.body.classList.toggle('dark-mode');
+  const isDark = document.body.classList.contains('dark-mode');
+  document.getElementById('theme-icon').textContent = isDark ? '☀️' : '🌙';
+  document.getElementById('theme-label').textContent = isDark ? 'Mode Terang' : 'Mode Gelap';
+  localStorage.setItem('theme_mode', isDark ? 'dark' : 'light');
+  renderAnalytics(); // re-render charts for theme
+});
+if (localStorage.getItem('theme_mode') === 'dark') {
+  document.body.classList.add('dark-mode');
+  document.getElementById('theme-icon').textContent = '☀️';
+  document.getElementById('theme-label').textContent = 'Mode Terang';
+}
+
+// Fullscreen Toggle
+document.getElementById('btn-fullscreen').addEventListener('click', () => {
+  if (!document.fullscreenElement) {
+    document.documentElement.requestFullscreen().catch(() => {});
+  } else {
+    document.exitFullscreen().catch(() => {});
+  }
+});
+
+// Load awal
+loadData(false);
+</script>
+</body>
+</html>
