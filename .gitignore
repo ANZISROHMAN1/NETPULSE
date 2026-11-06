@@ -1,0 +1,32 @@
+# Telegram Sessions & Credentials (SANGAT RAHASIA - JANGAN DI-PUSH)
+*.session
+*.session-journal
+.env
+
+# File Data Tiket Mentah & Arsip Unduhan
+*.txt
+*.zip
+*.tar
+wsa_*
+
+# Cache Server & Data Lokal
+dashboard/cache.csv
+*.log
+
+# Python Cache
+__pycache__/
+*.py[cod]
+*$py.class
+.pytest_cache/
+venv/
+.venv/
+env/
+
+# OS Specific
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
