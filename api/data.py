@@ -108,6 +108,8 @@ def parse_tickets(cache_text):
                 r[15].strip(),
                 r[16].strip(),
                 r[17].strip(),
+                r[18].strip() if len(r) > 18 else '',
+                r[19].strip() if len(r) > 19 else '',
             ])
     return tickets
 

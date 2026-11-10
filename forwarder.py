@@ -40,15 +40,27 @@ def send_to_anzis(message_text):
 
 def try_auto_extract(otp):
     """Mencari file wsa_*.zip terbaru di Downloads dan otomatis mengekstraknya menggunakan OTP"""
+    # Tunggu sebentar jika file masih dalam proses download (.crdownload)
+    for _ in range(5):
+        if glob.glob(os.path.join(DOWNLOADS_DIR, "wsa_*.crdownload")):
+            time.sleep(2)
+        else:
+            break
+
     recent_zips = sorted(glob.glob(os.path.join(DOWNLOADS_DIR, "wsa_*.zip")), key=os.path.getmtime, reverse=True)
     if not recent_zips:
         return None
 
-    # Periksa zip yang didownload dalam 15 menit terakhir
+    # Periksa zip yang didownload dalam 3 jam terakhir, atau ambil 10 file terbaru
     now = time.time()
-    candidates = [z for z in recent_zips if (now - os.path.getmtime(z)) < 900]
+    candidates = [z for z in recent_zips if (now - os.path.getmtime(z)) < 10800]
     if not candidates:
-        candidates = recent_zips[:3] # Fallback ke 3 file terakhir
+        candidates = recent_zips[:10]
+    else:
+        # Tambahkan cadangan file terbaru
+        for z in recent_zips[:5]:
+            if z not in candidates:
+                candidates.append(z)
 
     success_files = []
     pwd_bytes = otp.encode('utf-8')
@@ -102,11 +114,19 @@ client = TelegramClient('assurance_session', API_ID, API_HASH)
 async def my_event_handler(event):
     try:
         sender = await event.get_sender()
+        sender_name = getattr(sender, 'first_name', '') or getattr(sender, 'title', '') or ''
         sender_username = getattr(sender, 'username', '') or ''
         text = event.raw_text or ''
         
-        # Cek apakah pesan berasal dari assurancebot atau memuat kata kunci password
-        if 'password file anda' in text.lower() or 'assurance' in sender_username.lower():
+        # Cek apakah pesan berasal dari assurancebot / pentahobot atau memuat kata kunci password file anda
+        is_bot = (
+            'assurance' in sender_name.lower() or
+            'assurance' in sender_username.lower() or
+            'pentaho' in sender_username.lower()
+        )
+        has_pwd = 'password file anda' in text.lower() or ('password' in text.lower() and re.search(r'\b\d{4}\b', text))
+
+        if is_bot or has_pwd:
             match = re.search(r'password file anda\s*:\s*(\d{4})', text, re.IGNORECASE)
             otp = match.group(1) if match else None
             if not otp:
@@ -114,7 +134,7 @@ async def my_event_handler(event):
                 otp = m2.group(0) if m2 else None
 
             if otp:
-                print(f"\n[FOUND] OTP Diterima: {otp}", flush=True)
+                print(f"\n[FOUND] OTP Diterima dari {sender_name} (@{sender_username}): {otp}", flush=True)
                 
                 # 1. Kirim notifikasi password ke Mas Anzis
                 msg = f"🔔 *OTP NONATERO BARU*\n\n🔑 *Password:* `{otp}`\n\n_{text}_\n\n_Diteruskan otomatis dari assurancebot_"
@@ -133,9 +153,13 @@ def main():
     client.start(phone=PHONE_NUMBER)
     
     me = client.loop.run_until_complete(client.get_me())
-    print(f"\n✅ BERHASIL LOGIN sebagai: {me.first_name} {me.last_name or ''} (@{me.username or me.phone})", flush=True)
+    user_label = f"{me.first_name} {me.last_name or ''} (@{me.username or me.phone})"
+    print(f"\n✅ BERHASIL LOGIN sebagai: {user_label}", flush=True)
     print("🎧 Auto-Forwarder & Auto-Unzipper AKTIF!\n", flush=True)
     
+    # Beri notifikasi ke Telegram Mas Anzis bahwa forwarder sudah siap
+    send_to_anzis(f"🟢 *BOT WSA / FORWARDER ONLINE*\n\nAkun Telegram: `{user_label}`\nStatus: *Aktif & Siap Menerima OTP* 🎧\n_Setiap ada download Nonatero, OTP otomatis diteruskan dan file langsung di-unzip._")
+
     client.run_until_disconnected()
 
 if __name__ == '__main__':
