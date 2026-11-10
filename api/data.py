@@ -110,6 +110,7 @@ def parse_tickets(cache_text):
                 r[17].strip(),
                 r[18].strip() if len(r) > 18 else '',
                 r[19].strip() if len(r) > 19 else '',
+                r[13].strip() if len(r) > 13 else '',  # 16: manja_flag
             ])
     return tickets
 

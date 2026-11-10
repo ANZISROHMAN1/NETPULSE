@@ -164,6 +164,7 @@ def parse_tickets(cache_text):
                 r[17].strip(),                 # 13: c24 (1 / 0)
                 r[18].strip() if len(r) > 18 else "", # 14: trouble_no
                 r[19].strip() if len(r) > 19 else "", # 15: no_inet
+                r[13].strip() if len(r) > 13 else "", # 16: manja_flag
             ])
     return tickets
 

@@ -1643,7 +1643,7 @@ function getDrilldownTickets(spec) {
   const fFFG = document.getElementById('flt-ffg').value;
 
   return RAW_PAYLOAD.tickets.filter(t => {
-    // 0: date, 1: sto, 2: district, 3: sa, 4: type, 5: is_gaul, 6: is_gamas, 7: jenis_tiket2, 8: is_ffg, 9: hvc_flag, 10: c3, 11: c3m, 12: c6, 13: c24, 14: trouble_no, 15: no_inet
+    // 0: date, 1: sto, 2: district, 3: sa, 4: type, 5: is_gaul, 6: is_gamas, 7: jenis_tiket2, 8: is_ffg, 9: hvc_flag, 10: c3, 11: c3m, 12: c6, 13: c24, 14: trouble_no, 15: no_inet, 16: manja_flag
     // Global filters
     if (fDate !== 'All' && t[0] !== fDate) return false;
     if (fDist !== 'All' && t[2] !== fDist) return false;
@@ -1662,11 +1662,35 @@ function getDrilldownTickets(spec) {
     if (spec.jenis_tiket2 !== undefined && t[7] !== spec.jenis_tiket2) return false;
     if (spec.is_ffg !== undefined && t[8] !== spec.is_ffg) return false;
 
-    // TTR comply filters
+    // TTR specific drilldown filters (matching Google Sheet SLA rules)
+    if (spec.ttr_group) {
+      if (spec.ttr_group === 'diamond') {
+        if (t[9] !== 'HVC_DIAMOND') return false;
+        if (spec.ttr_status === 'comply' && t[10] !== '1') return false;
+        if (spec.ttr_status === 'not_comply' && t[10] === '1') return false;
+      } else if (spec.ttr_group === 'manja') {
+        if (t[16] !== '1') return false;
+        if (spec.ttr_status === 'comply' && t[11] !== '1') return false;
+        if (spec.ttr_status === 'not_comply' && t[11] === '1') return false;
+      } else if (spec.ttr_group === 'platinum') {
+        if (t[9] !== 'HVC_PLATINUM') return false;
+        if (spec.ttr_status === 'comply' && t[12] !== '1') return false;
+        if (spec.ttr_status === 'not_comply' && t[12] === '1') return false;
+      } else if (spec.ttr_group === 'reguler') {
+        if (t[9] === 'HVC_DIAMOND' || t[9] === 'HVC_PLATINUM') return false;
+        if (spec.ttr_status === 'comply' && t[13] !== '1') return false;
+        if (spec.ttr_status === 'not_comply' && t[13] === '1') return false;
+      }
+    }
+
+    // Generic comply filter fallback
     if (spec.comply_field !== undefined) {
       const idxMap = { c3: 10, c3m: 11, c6: 12, c24: 13 };
       const colIdx = idxMap[spec.comply_field];
-      if (colIdx !== undefined && t[colIdx] !== spec.comply_val) return false;
+      if (colIdx !== undefined) {
+        if (spec.comply_val === '1' && t[colIdx] !== '1') return false;
+        if (spec.comply_val === '0' && t[colIdx] === '1') return false;
+      }
     }
     return true;
   });
@@ -1697,7 +1721,16 @@ function openTicketDrilldown(spec) {
   if (spec.sto) {
     tagsHtml += `<span class="badge badge-blue" style="font-size:11px;">🏢 STO: ${spec.sto}</span>`;
   }
-  if (spec.hvc_flag) {
+  if (spec.ttr_group) {
+    const isComp = spec.ttr_status === 'comply';
+    const isNot = spec.ttr_status === 'not_comply';
+    const grpName = spec.ttr_group === 'diamond' ? '3J DIAMOND' :
+                    spec.ttr_group === 'manja' ? '3J MANJA' :
+                    spec.ttr_group === 'platinum' ? '6J PLATINUM' : '24J REGULER';
+    const statusLabel = isComp ? 'COMPLY' : isNot ? 'NOT COMPLY' : 'TOTAL';
+    const badgeClass = isComp ? 'badge-green' : isNot ? 'badge-red' : 'badge-blue';
+    tagsHtml += `<span class="badge ${badgeClass}" style="font-size:11px;">⏱️ ${grpName} ${statusLabel}</span>`;
+  } else if (spec.hvc_flag) {
     const isDia = spec.hvc_flag === 'HVC_DIAMOND';
     tagsHtml += `<span class="badge ${isDia ? 'badge-blue' : 'badge-green'}" style="font-size:11px;">💎 ${spec.hvc_flag.replace('HVC_', '')}</span>`;
   } else if (spec.type) {
@@ -1705,10 +1738,6 @@ function openTicketDrilldown(spec) {
   }
   if (spec.is_gaul === '1') {
     tagsHtml += `<span class="badge badge-red" style="font-size:11px;">🔁 GAUL</span>`;
-  }
-  if (spec.comply_field) {
-    const isComp = spec.comply_val === '1';
-    tagsHtml += `<span class="badge ${isComp ? 'badge-green' : 'badge-red'}" style="font-size:11px;">⏱️ ${spec.comply_field.toUpperCase()} ${isComp ? 'COMPLY' : 'NOT COMPLY'}</span>`;
   }
   tagsWrap.innerHTML = tagsHtml;
 
@@ -2241,16 +2270,17 @@ function applyFiltersAndRender() {
     });
 
     const dComp = stoTickets.filter(t => t[9] === 'HVC_DIAMOND' && t[10] === '1').length;
-    const dNot = stoTickets.filter(t => t[9] === 'HVC_DIAMOND' && t[10] === '0').length;
+    const dNot = stoTickets.filter(t => t[9] === 'HVC_DIAMOND' && t[10] !== '1').length;
 
-    const mComp = stoTickets.filter(t => t[11] === '1').length;
-    const mNot = stoTickets.filter(t => t[11] === '0').length;
+    const mComp = stoTickets.filter(t => t[16] === '1' && t[11] === '1').length;
+    const mNot = stoTickets.filter(t => t[16] === '1' && t[11] !== '1').length;
 
     const pComp = stoTickets.filter(t => t[9] === 'HVC_PLATINUM' && t[12] === '1').length;
-    const pNot = stoTickets.filter(t => t[9] === 'HVC_PLATINUM' && t[12] === '0').length;
+    const pNot = stoTickets.filter(t => t[9] === 'HVC_PLATINUM' && t[12] !== '1').length;
 
-    const rComp = stoTickets.filter(t => t[4] === 'REGULER' && t[13] === '1').length;
-    const rNot = stoTickets.filter(t => t[4] === 'REGULER' && t[13] === '0').length;
+    const regTickets = stoTickets.filter(t => t[9] !== 'HVC_DIAMOND' && t[9] !== 'HVC_PLATINUM');
+    const rComp = regTickets.filter(t => t[13] === '1').length;
+    const rNot = regTickets.filter(t => t[13] !== '1').length;
 
     ttrList.push({
       sto: stoCode,
@@ -2572,19 +2602,19 @@ function renderTables() {
       <tr>
         <td class="text-center font-bold" style="color:#0284c7;">${r.sto}</td>
         <td class="text-left">${r.sa}</td>
-        ${drill(r.total, { title: `STO ${r.sto} (${r.sa}) - Total Tiket TTR`, sto: r.sto }, 'font-bold')}
-        ${drill(r.diamond.comply, { title: `STO ${r.sto} (${r.sa}) - TTR 3J Diamond Comply`, sto: r.sto, hvc_flag: 'HVC_DIAMOND', comply_field: 'c3', comply_val: '1' }, 'text-success font-bold')}
-        ${drill(r.diamond.not_comply, { title: `STO ${r.sto} (${r.sa}) - TTR 3J Diamond NOT Comply`, sto: r.sto, hvc_flag: 'HVC_DIAMOND', comply_field: 'c3', comply_val: '0' }, dNotCls)}
-        ${drill(r.diamond.total, { title: `STO ${r.sto} (${r.sa}) - TTR 3J Diamond Total`, sto: r.sto, hvc_flag: 'HVC_DIAMOND' })}
-        ${drill(r.manja.comply, { title: `STO ${r.sto} (${r.sa}) - 3J Manja Comply`, sto: r.sto, comply_field: 'c3m', comply_val: '1' }, 'text-success font-bold')}
-        ${drill(r.manja.not_comply, { title: `STO ${r.sto} (${r.sa}) - 3J Manja NOT Comply`, sto: r.sto, comply_field: 'c3m', comply_val: '0' }, mNotCls)}
-        ${drill(r.manja.total, { title: `STO ${r.sto} (${r.sa}) - 3J Manja Total`, sto: r.sto })}
-        ${drill(r.platinum.comply, { title: `STO ${r.sto} (${r.sa}) - 6J Platinum Comply`, sto: r.sto, hvc_flag: 'HVC_PLATINUM', comply_field: 'c6', comply_val: '1' }, 'text-success font-bold')}
-        ${drill(r.platinum.not_comply, { title: `STO ${r.sto} (${r.sa}) - 6J Platinum NOT Comply`, sto: r.sto, hvc_flag: 'HVC_PLATINUM', comply_field: 'c6', comply_val: '0' }, pNotCls)}
-        ${drill(r.platinum.total, { title: `STO ${r.sto} (${r.sa}) - 6J Platinum Total`, sto: r.sto, hvc_flag: 'HVC_PLATINUM' })}
-        ${drill(r.reguler.comply, { title: `STO ${r.sto} (${r.sa}) - 24J Reguler Comply`, sto: r.sto, type: 'REGULER', comply_field: 'c24', comply_val: '1' }, 'text-success font-bold')}
-        ${drill(r.reguler.not_comply, { title: `STO ${r.sto} (${r.sa}) - 24J Reguler NOT Comply`, sto: r.sto, type: 'REGULER', comply_field: 'c24', comply_val: '0' }, rNotCls)}
-        ${drill(r.reguler.total, { title: `STO ${r.sto} (${r.sa}) - 24J Reguler Total`, sto: r.sto, type: 'REGULER' })}
+        ${drill(r.total, { title: `STO ${r.sto} (${r.sa}) - Total Tiket`, sto: r.sto }, 'font-bold')}
+        ${drill(r.diamond.comply, { title: `STO ${r.sto} (${r.sa}) - 3J Diamond Comply`, sto: r.sto, ttr_group: 'diamond', ttr_status: 'comply' }, 'text-success font-bold')}
+        ${drill(r.diamond.not_comply, { title: `STO ${r.sto} (${r.sa}) - 3J Diamond NOT Comply`, sto: r.sto, ttr_group: 'diamond', ttr_status: 'not_comply' }, dNotCls)}
+        ${drill(r.diamond.total, { title: `STO ${r.sto} (${r.sa}) - 3J Diamond Total`, sto: r.sto, ttr_group: 'diamond', ttr_status: 'total' })}
+        ${drill(r.manja.comply, { title: `STO ${r.sto} (${r.sa}) - 3J Manja Comply`, sto: r.sto, ttr_group: 'manja', ttr_status: 'comply' }, 'text-success font-bold')}
+        ${drill(r.manja.not_comply, { title: `STO ${r.sto} (${r.sa}) - 3J Manja NOT Comply`, sto: r.sto, ttr_group: 'manja', ttr_status: 'not_comply' }, mNotCls)}
+        ${drill(r.manja.total, { title: `STO ${r.sto} (${r.sa}) - 3J Manja Total`, sto: r.sto, ttr_group: 'manja', ttr_status: 'total' })}
+        ${drill(r.platinum.comply, { title: `STO ${r.sto} (${r.sa}) - 6J Platinum Comply`, sto: r.sto, ttr_group: 'platinum', ttr_status: 'comply' }, 'text-success font-bold')}
+        ${drill(r.platinum.not_comply, { title: `STO ${r.sto} (${r.sa}) - 6J Platinum NOT Comply`, sto: r.sto, ttr_group: 'platinum', ttr_status: 'not_comply' }, pNotCls)}
+        ${drill(r.platinum.total, { title: `STO ${r.sto} (${r.sa}) - 6J Platinum Total`, sto: r.sto, ttr_group: 'platinum', ttr_status: 'total' })}
+        ${drill(r.reguler.comply, { title: `STO ${r.sto} (${r.sa}) - 24J Reguler Comply`, sto: r.sto, ttr_group: 'reguler', ttr_status: 'comply' }, 'text-success font-bold')}
+        ${drill(r.reguler.not_comply, { title: `STO ${r.sto} (${r.sa}) - 24J Reguler NOT Comply`, sto: r.sto, ttr_group: 'reguler', ttr_status: 'not_comply' }, rNotCls)}
+        ${drill(r.reguler.total, { title: `STO ${r.sto} (${r.sa}) - 24J Reguler Total`, sto: r.sto, ttr_group: 'reguler', ttr_status: 'total' })}
       </tr>
     `;
   });
