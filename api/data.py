@@ -6,21 +6,24 @@ import urllib.request
 from http.server import BaseHTTPRequestHandler
 
 SHEET_ID = "1Pu8n4tt0TiPec1_j31HJ5FgZdCPCuBwH6SWrEiXg7Bg"
-GID = "1357353552"
-EXPORT_URL = f"https://docs.google.com/spreadsheets/d/{SHEET_ID}/export?format=csv&gid={GID}"
+GID_DASHBOARD = "1357353552"
+GID_CACHE = "366740069"
+GID_SA = "821202101"
+
+def fetch_csv(gid):
+    url = f"https://docs.google.com/spreadsheets/d/{SHEET_ID}/export?format=csv&gid={gid}"
+    req = urllib.request.Request(url, headers={"User-Agent": "Mozilla/5.0"})
+    with urllib.request.urlopen(req, timeout=25) as resp:
+        return resp.read().decode("utf-8", errors="replace")
 
 def num(s):
     s = (s or "").strip()
-    if not s:
-        return None
+    if not s: return None
     pct = s.endswith("%")
     s = s.replace(",", "").rstrip("%")
-    try:
-        v = float(s)
-    except ValueError:
-        return None
-    if pct:
-        return round(v, 2)
+    try: v = float(s)
+    except ValueError: return None
+    if pct: return round(v, 2)
     return int(v) if v.is_integer() else v
 
 def cell(r, i):
@@ -40,8 +43,7 @@ def parse_block(rows, header_idx, names):
     while j < len(rows):
         r = rows[j]
         a, b = cell(r, 0), cell(r, 14)
-        if not a and not b:
-            break
+        if not a and not b: break
         if a and a != "SERVICE AREA":
             left.append({"name": a, names[0]: quad(r, 1), names[1]: quad(r, 5), names[2]: quad(r, 9)})
         if b:
@@ -86,18 +88,76 @@ def parse_sheet(text):
                 j += 1
     return data
 
+def parse_tickets(cache_text):
+    rows = list(csv.reader(io.StringIO(cache_text)))
+    tickets = []
+    for r in rows[1:]:
+        if len(r) > 17 and r[7] == '0':
+            tickets.append([
+                r[1].strip() or r[0].strip(),
+                r[2].strip(),
+                r[3].strip(),
+                r[4].strip(),
+                r[5].strip(),
+                r[8].strip(),
+                r[9].strip(),
+                r[10].strip(),
+                r[11].strip(),
+                r[12].strip(),
+                r[14].strip(),
+                r[15].strip(),
+                r[16].strip(),
+                r[17].strip(),
+            ])
+    return tickets
+
+def parse_lis(sa_text):
+    rows = list(csv.reader(io.StringIO(sa_text)))
+    lis_map = {}
+    for r in rows[2:]:
+        if len(r) > 6 and r[2]:
+            sto = r[2].strip()
+            def to_n(val):
+                try: return int(val.replace(',', ''))
+                except: return 0
+            lis_map[sto] = {
+                "district": r[0].strip(),
+                "sa": r[1].strip(),
+                "sto": sto,
+                "total": to_n(r[3]),
+                "dia": to_n(r[4]),
+                "plat": to_n(r[5]),
+                "reg": to_n(r[6]),
+            }
+    return lis_map
+
 class handler(BaseHTTPRequestHandler):
     def do_GET(self):
         try:
-            req = urllib.request.Request(EXPORT_URL, headers={"User-Agent": "Mozilla/5.0"})
-            with urllib.request.urlopen(req, timeout=30) as resp:
-                text = resp.read().decode("utf-8", errors="replace")
-            
+            text_dash = fetch_csv(GID_DASHBOARD)
+            text_cache = fetch_csv(GID_CACHE)
+            text_sa = fetch_csv(GID_SA)
+
+            dash_data = parse_sheet(text_dash)
+            tickets = parse_tickets(text_cache)
+            lis_map = parse_lis(text_sa)
+
+            dates = sorted(list(set(t[0] for t in tickets)), reverse=True)
+            districts = sorted(list(set(t[2] for t in tickets if t[2])))
+            service_areas = sorted(list(set(t[3] for t in tickets if t[3])))
+            jenis_options = sorted(list(set(t[7] for t in tickets if t[7])))
+
             payload = {
                 "source": "live-vercel",
                 "fetched_at": time.time(),
-                "sheet_url": f"https://docs.google.com/spreadsheets/d/{SHEET_ID}/edit?gid={GID}",
-                "data": parse_sheet(text)
+                "sheet_url": f"https://docs.google.com/spreadsheets/d/{SHEET_ID}/edit?gid={GID_DASHBOARD}",
+                "data": dash_data,
+                "dates": dates,
+                "districts": districts,
+                "service_areas": service_areas,
+                "jenis_options": jenis_options,
+                "lis_map": lis_map,
+                "tickets": tickets,
             }
             body = json.dumps(payload, ensure_ascii=False).encode("utf-8")
             self.send_response(200)

@@ -274,32 +274,130 @@
     border: 1px solid var(--border-color);
     border-radius: var(--radius-lg);
     box-shadow: var(--shadow-sm);
-    padding: 14px 20px;
+    padding: 12px 18px;
     margin-bottom: 18px;
     display: flex;
     flex-wrap: wrap;
     justify-content: space-between;
     align-items: center;
-    gap: 16px;
+    gap: 12px;
   }
-  .meta-items {
+  .filter-controls-wrap {
     display: flex;
     flex-wrap: wrap;
     align-items: center;
-    gap: 18px;
-    font-size: 12px;
+    gap: 8px;
   }
-  .meta-item {
+  .filter-field {
     display: inline-flex;
     align-items: center;
-    gap: 6px;
+    gap: 5px;
   }
-  .meta-label { color: var(--text-muted); font-weight: 500; }
-  .meta-value { color: var(--text-primary); font-weight: 700; }
-  .filter-tags {
+  .filter-label {
+    font-size: 11.5px;
+    font-weight: 600;
+    color: var(--text-muted);
+    letter-spacing: 0.02em;
+    white-space: nowrap;
+  }
+  .flt-select {
+    height: 32px;
+    padding: 0 9px;
+    font-size: 11.5px;
+    font-weight: 600;
+    border-radius: 6px;
+    border: 1px solid var(--border-color);
+    background-color: var(--bg-subtle);
+    color: var(--text-primary);
+    cursor: pointer;
+    transition: all 0.2s ease;
+    outline: none;
+    font-family: inherit;
+  }
+  .flt-select:hover {
+    border-color: var(--brand-accent);
+  }
+  .flt-select:focus {
+    border-color: var(--brand-accent);
+    box-shadow: 0 0 0 2px rgba(2, 132, 199, 0.2);
+  }
+  .flt-select.is-active {
+    background: rgba(2, 132, 199, 0.12);
+    border-color: #0284c7;
+    color: #0284c7;
+    font-weight: 700;
+  }
+  body.dark-mode .flt-select {
+    background-color: #1e293b;
+    border-color: #334155;
+    color: #f1f5f9;
+  }
+  body.dark-mode .flt-select.is-active {
+    background: rgba(56, 189, 248, 0.18);
+    border-color: #38bdf8;
+    color: #38bdf8;
+  }
+  .flt-divider {
+    display: inline-block;
+    width: 1px;
+    height: 20px;
+    background: var(--border-color);
+    margin: 0 4px;
+  }
+  .btn-reset-flt {
+    height: 32px;
+    padding: 0 11px;
+    font-size: 11.5px;
+    font-weight: 700;
+    border-radius: 6px;
+    border: 1px solid var(--border-color);
+    background: var(--bg-surface);
+    color: var(--text-secondary);
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    transition: all 0.2s ease;
+    font-family: inherit;
+  }
+  .btn-reset-flt:hover {
+    background: #fee2e2;
+    border-color: #fca5a5;
+    color: #b91c1c;
+  }
+  body.dark-mode .btn-reset-flt {
+    background: #1e293b;
+    border-color: #334155;
+    color: #cbd5e1;
+  }
+  body.dark-mode .btn-reset-flt:hover {
+    background: rgba(239, 68, 68, 0.2);
+    border-color: #ef4444;
+    color: #f87171;
+  }
+  .flt-badge {
+    font-size: 11px;
+    font-weight: 700;
+    padding: 4px 10px;
+    border-radius: 12px;
+    background: rgba(2, 132, 199, 0.1);
+    color: #0284c7;
+    border: 1px solid rgba(2, 132, 199, 0.25);
+    white-space: nowrap;
+  }
+  body.dark-mode .flt-badge {
+    background: rgba(56, 189, 248, 0.15);
+    color: #38bdf8;
+    border-color: rgba(56, 189, 248, 0.3);
+  }
+  .meta-right-info {
+    font-size: 11px;
+    color: var(--text-muted);
     display: flex;
-    flex-wrap: wrap;
+    align-items: center;
     gap: 6px;
+    margin-left: auto;
+    white-space: nowrap;
   }
   .tag {
     background: var(--bg-subtle);
@@ -728,35 +826,91 @@
 
 <div class="app-container">
 
-  <!-- METADATA & FILTER BAR -->
+  <!-- METADATA & ACTIVE FILTER BAR -->
   <div class="meta-strip">
-    <div class="meta-items">
+    <div class="filter-controls-wrap">
       <div class="meta-item">
         <span class="tag" style="background:rgba(2,132,199,0.12); border-color:rgba(2,132,199,0.3); color:#0284c7; font-weight:800; letter-spacing:0.04em;">⚡ NETPULSE</span>
       </div>
-      <div class="meta-item">
-        <span class="meta-label">Tanggal:</span>
-        <span class="meta-value" id="disp-tanggal">-</span>
+
+      <!-- Tanggal -->
+      <div class="filter-field">
+        <label for="flt-tanggal" class="filter-label">Tanggal:</label>
+        <select id="flt-tanggal" class="flt-select" title="Pilih Tanggal Data">
+          <option value="All">Semua Tanggal</option>
+        </select>
       </div>
-      <div class="meta-item">
-        <span class="meta-label">District:</span>
-        <span class="meta-value tag tag-accent" id="disp-district">-</span>
+
+      <!-- District -->
+      <div class="filter-field">
+        <label for="flt-district" class="filter-label">District:</label>
+        <select id="flt-district" class="flt-select" title="Filter District">
+          <option value="All">All District</option>
+          <option value="BOGOR" selected>BOGOR</option>
+        </select>
       </div>
-      <div class="meta-item">
-        <span class="meta-label">Service Area:</span>
-        <span class="meta-value" id="disp-sa">-</span>
+
+      <!-- Service Area -->
+      <div class="filter-field">
+        <label for="flt-sa" class="filter-label">Service Area:</label>
+        <select id="flt-sa" class="flt-select" title="Filter Service Area">
+          <option value="All">Semua Service Area</option>
+        </select>
       </div>
-      <div class="meta-item">
-        <span class="meta-label">Filter:</span>
-        <div class="filter-tags">
-          <span class="tag">GAUL: <b id="tag-gaul">All</b></span>
-          <span class="tag">GAMAS: <b id="tag-gamas">All</b></span>
-          <span class="tag">TIKET2: <b id="tag-tiket2">All</b></span>
-          <span class="tag">FFG: <b id="tag-ffg">All</b></span>
-        </div>
+
+      <span class="flt-divider"></span>
+
+      <!-- IS_GAUL -->
+      <div class="filter-field">
+        <select id="flt-gaul" class="flt-select" title="Filter Tiket Berulang (IS_GAUL)">
+          <option value="All">GAUL: All</option>
+          <option value="1">GAUL: 1 (Ya)</option>
+          <option value="0">GAUL: 0 (Tidak)</option>
+        </select>
       </div>
+
+      <!-- IS_GAMAS -->
+      <div class="filter-field">
+        <select id="flt-gamas" class="flt-select" title="Filter Gangguan Massal (IS_GAMAS)">
+          <option value="All">GAMAS: All</option>
+          <option value="1">GAMAS: 1 (Ya)</option>
+          <option value="0">GAMAS: 0 (Tidak)</option>
+        </select>
+      </div>
+
+      <!-- JENIS_TIKET2 -->
+      <div class="filter-field">
+        <select id="flt-tiket2" class="flt-select" title="Filter Jenis Tiket (JENIS_TIKET2)">
+          <option value="All">TIKET2: All</option>
+          <option value="FISIK">TIKET2: FISIK</option>
+          <option value="LOGIK">TIKET2: LOGIK</option>
+        </select>
+      </div>
+
+      <!-- IS_FFG -->
+      <div class="filter-field">
+        <select id="flt-ffg" class="flt-select" title="Filter First Frequency Gangguan (IS_FFG)">
+          <option value="All">FFG: All</option>
+          <option value="1">FFG: 1 (Ya)</option>
+          <option value="0">FFG: 0 (Tidak)</option>
+        </select>
+      </div>
+
+      <!-- Reset Filter Button -->
+      <button id="btn-reset-filters" class="btn-reset-flt" type="button" title="Kembalikan semua filter ke awal">
+        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/>
+          <path d="M3 3v5h5"/>
+        </svg>
+        Reset
+      </button>
+
+      <!-- Active Ticket Count Badge -->
+      <span id="flt-count-badge" class="flt-badge" title="Jumlah tiket yang sesuai dengan filter aktif">-</span>
     </div>
-    <div style="font-size: 11px; color: var(--text-muted); display:flex; align-items:center; gap:6px;">
+
+    <!-- Sync info right -->
+    <div class="meta-right-info">
       <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
         <circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline>
       </svg>
@@ -1007,14 +1161,39 @@
 
 <script>
 let RAW_PAYLOAD = null;
+let ACTIVE_DATA = null;
 let CHARTS = {};
 let SORT_STATE = { col: null, dir: 'desc' };
 let AUTO_REFRESH_TIMER = 300; // 5 menit
 let TIMER_INTERVAL = null;
 
+const DEFAULT_FILTERS = {
+  tanggal: '',
+  district: 'BOGOR',
+  sa: 'All',
+  gaul: 'All',
+  gamas: 'All',
+  tiket2: 'All',
+  ffg: 'All'
+};
+
+const SA_LIST_ORDER = [
+  "CIBINONG", "CILEUNGSI", "BOGOR", "SUKABUMI", "SEMPLAK",
+  "CIAWI", "PAGELARAN", "CIBADAK", "DRAMAGA", "KEDUNGHALANG", "PASIR MAUNG"
+];
+
 // Helper Formatters
 const fmt = n => n == null ? '-' : Number(n).toLocaleString('id-ID');
 const pct = n => n == null ? '-' : Number(n).toFixed(2) + '%';
+
+function formatDisplayDate(isoStr) {
+  if (!isoStr) return '';
+  const parts = isoStr.split('-');
+  if (parts.length === 3) {
+    return `${parts[2]}/${parts[1]}/${parts[0]}`;
+  }
+  return isoStr;
+}
 
 // Smart SLA Class
 function getSlaClass(val, type = 'avail') {
@@ -1047,7 +1226,15 @@ async function loadData(force = false) {
 
     RAW_PAYLOAD = json;
     resetCountdown();
-    renderAll();
+
+    populateFilterDropdowns();
+
+    const meta = RAW_PAYLOAD.data?.meta || {};
+    document.getElementById('disp-update').textContent = 'Sheet Update: ' + (meta.update || '-');
+    document.getElementById('disp-last-sync').textContent = 'Sync: ' + new Date(RAW_PAYLOAD.fetched_at * 1000).toLocaleTimeString('id-ID');
+    document.getElementById('btn-open-sheet').href = RAW_PAYLOAD.sheet_url;
+
+    applyFiltersAndRender();
   } catch (err) {
     alert('Error koneksi Google Sheet: ' + err.message);
   } finally {
@@ -1061,28 +1248,335 @@ async function loadData(force = false) {
   }
 }
 
-// ------------------------------------------------ RENDER UTAMA ------------------------------------------------
-function renderAll() {
-  if (!RAW_PAYLOAD || !RAW_PAYLOAD.data) return;
-  const d = RAW_PAYLOAD.data;
-  const meta = d.meta || {};
+// ------------------------------------------------ FILTER DROPDOWNS ------------------------------------------------
+function populateFilterDropdowns() {
+  if (!RAW_PAYLOAD) return;
+
+  // 1. Dates
+  const selDate = document.getElementById('flt-tanggal');
+  const prevDate = selDate.value;
+  const dates = RAW_PAYLOAD.dates || [];
+  let defaultDate = dates[0] || '2026-11-02';
+  DEFAULT_FILTERS.tanggal = defaultDate;
+
+  let dOpts = '';
+  dates.forEach((d, idx) => {
+    const isLatest = idx === 0;
+    const label = `${formatDisplayDate(d)}${isLatest ? ' (Terbaru)' : ''}`;
+    dOpts += `<option value="${d}">${label}</option>`;
+  });
+  dOpts += `<option value="All">Semua Tanggal (30 Hari)</option>`;
+  selDate.innerHTML = dOpts;
+  selDate.value = prevDate && (dates.includes(prevDate) || prevDate === 'All') ? prevDate : defaultDate;
+
+  // 2. Districts
+  const selDist = document.getElementById('flt-district');
+  const prevDist = selDist.value;
+  const districts = RAW_PAYLOAD.districts || ['BOGOR'];
+  let distOpts = '<option value="All">All District</option>';
+  districts.forEach(d => {
+    distOpts += `<option value="${d}">${d}</option>`;
+  });
+  selDist.innerHTML = distOpts;
+  selDist.value = prevDist && (districts.includes(prevDist) || prevDist === 'All') ? prevDist : 'BOGOR';
+
+  // 3. Service Areas
+  const selSA = document.getElementById('flt-sa');
+  const prevSA = selSA.value;
+  const saList = RAW_PAYLOAD.service_areas || SA_LIST_ORDER;
+  const sortedSA = [...saList].sort((a, b) => {
+    const ia = SA_LIST_ORDER.indexOf(a);
+    const ib = SA_LIST_ORDER.indexOf(b);
+    if (ia !== -1 && ib !== -1) return ia - ib;
+    if (ia !== -1) return -1;
+    if (ib !== -1) return 1;
+    return a.localeCompare(b);
+  });
+  let saOpts = '<option value="All">Semua Service Area</option>';
+  sortedSA.forEach(s => {
+    saOpts += `<option value="${s}">${s}</option>`;
+  });
+  selSA.innerHTML = saOpts;
+  selSA.value = prevSA && (sortedSA.includes(prevSA) || prevSA === 'All') ? prevSA : 'All';
+
+  // Also sync toolbar SA filter
+  const selSA2 = document.getElementById('sel-sa-filter');
+  if (selSA2) {
+    selSA2.innerHTML = '<option value="">Semua Service Area</option>' + sortedSA.map(s => `<option value="${s}">${s}</option>`).join('');
+    selSA2.value = selSA.value === 'All' ? '' : selSA.value;
+  }
+}
+
+// ------------------------------------------------ FILTER & RECALC ENGINE ------------------------------------------------
+function applyFiltersAndRender() {
+  if (!RAW_PAYLOAD) return;
+
+  const fDate = document.getElementById('flt-tanggal').value;
+  const fDist = document.getElementById('flt-district').value;
+  const fSA = document.getElementById('flt-sa').value;
+  const fGaul = document.getElementById('flt-gaul').value;
+  const fGamas = document.getElementById('flt-gamas').value;
+  const fTiket2 = document.getElementById('flt-tiket2').value;
+  const fFFG = document.getElementById('flt-ffg').value;
+
+  // Active filter highlights
+  document.getElementById('flt-tanggal').classList.toggle('is-active', fDate !== DEFAULT_FILTERS.tanggal);
+  document.getElementById('flt-district').classList.toggle('is-active', fDist !== 'BOGOR');
+  document.getElementById('flt-sa').classList.toggle('is-active', fSA !== 'All');
+  document.getElementById('flt-gaul').classList.toggle('is-active', fGaul !== 'All');
+  document.getElementById('flt-gamas').classList.toggle('is-active', fGamas !== 'All');
+  document.getElementById('flt-tiket2').classList.toggle('is-active', fTiket2 !== 'All');
+  document.getElementById('flt-ffg').classList.toggle('is-active', fFFG !== 'All');
+
+  // Sync toolbar SA selector
+  const selSA2 = document.getElementById('sel-sa-filter');
+  if (selSA2 && selSA2.value !== (fSA === 'All' ? '' : fSA)) {
+    selSA2.value = fSA === 'All' ? '' : fSA;
+  }
+
+  const isDefault = (
+    fDate === DEFAULT_FILTERS.tanggal &&
+    fDist === 'BOGOR' &&
+    fSA === 'All' &&
+    fGaul === 'All' &&
+    fGamas === 'All' &&
+    fTiket2 === 'All' &&
+    fFFG === 'All'
+  );
+
+  const tickets = RAW_PAYLOAD.tickets || [];
+  const lisMap = RAW_PAYLOAD.lis_map || {};
+
+  if (tickets.length === 0) {
+    ACTIVE_DATA = RAW_PAYLOAD.data;
+    renderAllViews();
+    return;
+  }
+
+  // Filter raw tickets
+  const filtered = [];
+  for (let i = 0; i < tickets.length; i++) {
+    const t = tickets[i];
+    // 0: date, 1: sto, 2: district, 3: sa, 4: type, 5: is_gaul, 6: is_gamas, 7: jenis_tiket2, 8: is_ffg, 9: hvc_flag, 10: c3, 11: c3m, 12: c6, 13: c24
+    if (fDate !== 'All' && t[0] !== fDate) continue;
+    if (fDist !== 'All' && t[2] !== fDist) continue;
+    if (fSA !== 'All' && t[3] !== fSA) continue;
+    if (fGaul !== 'All' && t[5] !== fGaul) continue;
+    if (fGamas !== 'All' && t[6] !== fGamas) continue;
+    if (fTiket2 !== 'All' && t[7] !== fTiket2) continue;
+    if (fFFG !== 'All' && t[8] !== fFFG) continue;
+    filtered.push(t);
+  }
+
+  document.getElementById('flt-count-badge').textContent = `${filtered.length} Tiket`;
+
+  // Fallback to exact sheet snapshot when default
+  if (isDefault && RAW_PAYLOAD.data?.cards?.total === filtered.length) {
+    ACTIVE_DATA = RAW_PAYLOAD.data;
+    renderAllViews();
+    return;
+  }
+
+  // Recalculate Cards
+  const total = filtered.length;
+  let hvc = 0, reguler = 0, diaTot = 0, platTot = 0;
+  const stoSet = new Set();
+  const saSet = new Set();
+
+  for (let i = 0; i < filtered.length; i++) {
+    const t = filtered[i];
+    if (t[1]) stoSet.add(t[1]);
+    if (t[3]) saSet.add(t[3]);
+    if (t[9] === 'HVC_DIAMOND') {
+      hvc++;
+      diaTot++;
+    } else if (t[9] === 'HVC_PLATINUM') {
+      hvc++;
+      platTot++;
+    }
+    if (t[4] === 'REGULER') reguler++;
+  }
+
+  const cards = {
+    total: total,
+    hvc: hvc,
+    reguler: reguler,
+    sto_aktif: stoSet.size,
+    sa_aktif: saSet.size,
+    diamond: diaTot,
+    platinum: platTot
+  };
+
+  const calcAvail = (ggn, lis) => lis > 0 ? Math.min(100, Math.max(0, ((1 - ggn / lis) * 100))) : 100.0;
+  const calcAG = (gaul, ggn) => ggn > 0 ? Math.min(100, Math.max(0, ((1 - gaul / ggn) * 100))) : 100.0;
+  const round2 = v => Math.round(v * 100) / 100;
+
+  // Recalculate SA Blok 1 & 2
+  const saListToProcess = (fSA !== 'All') ? [fSA] : SA_LIST_ORDER;
+  const saLis = [];
+  const saAg = [];
+
+  for (let s = 0; s < saListToProcess.length; s++) {
+    const saName = saListToProcess[s];
+    const saTickets = filtered.filter(t => t[3] === saName);
+    const dG = saTickets.filter(t => t[9] === 'HVC_DIAMOND').length;
+    const pG = saTickets.filter(t => t[9] === 'HVC_PLATINUM').length;
+    const rG = saTickets.filter(t => t[4] === 'REGULER').length;
+    const tG = saTickets.length;
+
+    let dL = 0, pL = 0, rL = 0, tL = 0;
+    Object.values(lisMap).forEach(stoInfo => {
+      if (stoInfo.sa === saName && (fDist === 'All' || stoInfo.district === fDist)) {
+        dL += stoInfo.dia || 0;
+        pL += stoInfo.plat || 0;
+        rL += stoInfo.reg || 0;
+        tL += stoInfo.total || 0;
+      }
+    });
+
+    saLis.push({
+      name: saName,
+      ggn: { diamond: dG, platinum: pG, reguler: rG, total: tG },
+      lis: { diamond: dL, platinum: pL, reguler: rL, total: tL },
+      avail: {
+        diamond: round2(calcAvail(dG, dL)),
+        platinum: round2(calcAvail(pG, pL)),
+        reguler: round2(calcAvail(rG, rL)),
+        total: round2(calcAvail(tG, tL))
+      }
+    });
+
+    const dGaul = saTickets.filter(t => t[9] === 'HVC_DIAMOND' && t[5] === '1').length;
+    const pGaul = saTickets.filter(t => t[9] === 'HVC_PLATINUM' && t[5] === '1').length;
+    const rGaul = saTickets.filter(t => t[4] === 'REGULER' && t[5] === '1').length;
+    const tGaul = saTickets.filter(t => t[5] === '1').length;
+
+    saAg.push({
+      name: saName,
+      ggn: { diamond: dG, platinum: pG, reguler: rG, total: tG },
+      gaul: { diamond: dGaul, platinum: pGaul, reguler: rGaul, total: tGaul },
+      ag: {
+        diamond: round2(calcAG(dGaul, dG)),
+        platinum: round2(calcAG(pGaul, pG)),
+        reguler: round2(calcAG(rGaul, rG)),
+        total: round2(calcAG(tGaul, tG))
+      }
+    });
+  }
+
+  // Recalculate STO Blok 1, 2, 3
+  const allStos = new Set();
+  filtered.forEach(t => { if (t[1]) allStos.add(t[1]); });
+  if (fSA !== 'All') {
+    Object.values(lisMap).forEach(v => {
+      if (v.sa === fSA) allStos.add(v.sto);
+    });
+  }
+
+  const stoLis = [];
+  const stoAg = [];
+  const ttrList = [];
+
+  allStos.forEach(stoCode => {
+    const stoInfo = lisMap[stoCode] || { sa: '-', district: '-', dia: 0, plat: 0, reg: 0, total: 0 };
+    const saName = stoInfo.sa !== '-' ? stoInfo.sa : (filtered.find(t => t[1] === stoCode)?.[3] || '-');
+    const stoTickets = filtered.filter(t => t[1] === stoCode);
+
+    const dG = stoTickets.filter(t => t[9] === 'HVC_DIAMOND').length;
+    const pG = stoTickets.filter(t => t[9] === 'HVC_PLATINUM').length;
+    const rG = stoTickets.filter(t => t[4] === 'REGULER').length;
+    const tG = stoTickets.length;
+
+    const dL = stoInfo.dia || 0;
+    const pL = stoInfo.plat || 0;
+    const rL = stoInfo.reg || 0;
+    const tL = stoInfo.total || 0;
+
+    stoLis.push({
+      sto: stoCode,
+      sa: saName,
+      ggn: { diamond: dG, platinum: pG, reguler: rG, total: tG },
+      lis: { diamond: dL, platinum: pL, reguler: rL, total: tL },
+      avail: {
+        diamond: round2(calcAvail(dG, dL)),
+        platinum: round2(calcAvail(pG, pL)),
+        reguler: round2(calcAvail(rG, rL)),
+        total: round2(calcAvail(tG, tL))
+      }
+    });
+
+    const dGaul = stoTickets.filter(t => t[9] === 'HVC_DIAMOND' && t[5] === '1').length;
+    const pGaul = stoTickets.filter(t => t[9] === 'HVC_PLATINUM' && t[5] === '1').length;
+    const rGaul = stoTickets.filter(t => t[4] === 'REGULER' && t[5] === '1').length;
+    const tGaul = stoTickets.filter(t => t[5] === '1').length;
+
+    stoAg.push({
+      sto: stoCode,
+      sa: saName,
+      ggn: { diamond: dG, platinum: pG, reguler: rG, total: tG },
+      gaul: { diamond: dGaul, platinum: pGaul, reguler: rGaul, total: tGaul },
+      ag: {
+        diamond: round2(calcAG(dGaul, dG)),
+        platinum: round2(calcAG(pGaul, pG)),
+        reguler: round2(calcAG(rGaul, rG)),
+        total: round2(calcAG(tGaul, tG))
+      }
+    });
+
+    const dComp = stoTickets.filter(t => t[9] === 'HVC_DIAMOND' && t[10] === '1').length;
+    const dNot = stoTickets.filter(t => t[9] === 'HVC_DIAMOND' && t[10] === '0').length;
+
+    const mComp = stoTickets.filter(t => t[11] === '1').length;
+    const mNot = stoTickets.filter(t => t[11] === '0').length;
+
+    const pComp = stoTickets.filter(t => t[9] === 'HVC_PLATINUM' && t[12] === '1').length;
+    const pNot = stoTickets.filter(t => t[9] === 'HVC_PLATINUM' && t[12] === '0').length;
+
+    const rComp = stoTickets.filter(t => t[4] === 'REGULER' && t[13] === '1').length;
+    const rNot = stoTickets.filter(t => t[4] === 'REGULER' && t[13] === '0').length;
+
+    ttrList.push({
+      sto: stoCode,
+      sa: saName,
+      total: tG,
+      diamond: { comply: dComp, not_comply: dNot, total: dComp + dNot },
+      manja: { comply: mComp, not_comply: mNot, total: mComp + mNot },
+      platinum: { comply: pComp, not_comply: pNot, total: pComp + pNot },
+      reguler: { comply: rComp, not_comply: rNot, total: rComp + rNot },
+    });
+  });
+
+  stoLis.sort((a, b) => (b.ggn.total - a.ggn.total) || a.sto.localeCompare(b.sto));
+  stoAg.sort((a, b) => (b.ggn.total - a.ggn.total) || a.sto.localeCompare(b.sto));
+  ttrList.sort((a, b) => (b.total - a.total) || a.sto.localeCompare(b.sto));
+
+  ACTIVE_DATA = {
+    meta: {
+      tanggal: formatDisplayDate(fDate),
+      district: fDist,
+      service_area: fSA === 'All' ? 'SEMUA SERVICE AREA' : fSA,
+      update: RAW_PAYLOAD.data?.meta?.update || '-',
+      filters: {
+        IS_GAUL: fGaul,
+        IS_GAMAS: fGamas,
+        JENIS_TIKET2: fTiket2,
+        IS_FFG: fFFG
+      }
+    },
+    cards: cards,
+    lis: { sa: saLis, sto: stoLis },
+    ag: { sa: saAg, sto: stoAg },
+    ttr: ttrList
+  };
+
+  renderAllViews();
+}
+
+function renderAllViews() {
+  if (!ACTIVE_DATA) return;
+  const d = ACTIVE_DATA;
   const cards = d.cards || {};
 
-  // Update Metadata
-  document.getElementById('disp-tanggal').textContent = meta.tanggal || '-';
-  document.getElementById('disp-district').textContent = meta.district || '-';
-  document.getElementById('disp-sa').textContent = meta.service_area || '-';
-  document.getElementById('disp-update').textContent = 'Sheet Update: ' + (meta.update || '-');
-  document.getElementById('disp-last-sync').textContent = 'Sync: ' + new Date(RAW_PAYLOAD.fetched_at * 1000).toLocaleTimeString('id-ID');
-  document.getElementById('btn-open-sheet').href = RAW_PAYLOAD.sheet_url;
-
-  const f = meta.filters || {};
-  document.getElementById('tag-gaul').textContent = f.IS_GAUL || 'All';
-  document.getElementById('tag-gamas').textContent = f.IS_GAMAS || 'All';
-  document.getElementById('tag-tiket2').textContent = f.JENIS_TIKET2 || 'All';
-  document.getElementById('tag-ffg').textContent = f.IS_FFG || 'All';
-
-  // Update KPI Cards
   document.getElementById('card-total').textContent = fmt(cards.total);
   document.getElementById('card-hvc').textContent = fmt(cards.hvc);
   document.getElementById('card-reguler').textContent = fmt(cards.reguler);
@@ -1095,23 +1589,15 @@ function renderAll() {
   document.getElementById('card-hvc-pct').textContent = hvcPct;
   document.getElementById('card-reguler-pct').textContent = regPct;
 
-  // Diamond & Platinum Breakdown
-  let diaTot = 0, platTot = 0;
-  (d.lis.sa || []).forEach(r => {
-    diaTot += (r.ggn.diamond || 0);
-    platTot += (r.ggn.platinum || 0);
-  });
+  let diaTot = cards.diamond !== undefined ? cards.diamond : 0;
+  let platTot = cards.platinum !== undefined ? cards.platinum : 0;
+  if (cards.diamond === undefined) {
+    (d.lis.sa || []).forEach(r => {
+      diaTot += (r.ggn.diamond || 0);
+      platTot += (r.ggn.platinum || 0);
+    });
+  }
   document.getElementById('card-hvc-detail').textContent = `Dia: ${fmt(diaTot)} | Plat: ${fmt(platTot)}`;
-
-  // Populate SA dropdown filter
-  const selSA = document.getElementById('sel-sa-filter');
-  const prevVal = selSA.value;
-  const saSet = new Set();
-  (d.lis.sa || []).forEach(x => saSet.add(x.name));
-  (d.lis.sto || []).forEach(x => saSet.add(x.sa));
-  const saList = Array.from(saSet).sort();
-  selSA.innerHTML = '<option value="">Semua Service Area</option>' + saList.map(s => `<option value="${s}">${s}</option>`).join('');
-  selSA.value = saSet.has(prevVal) ? prevVal : '';
 
   renderTables();
   renderAnalytics();
@@ -1120,8 +1606,9 @@ function renderAll() {
 
 // ------------------------------------------------ RENDER TABEL ------------------------------------------------
 function renderTables() {
-  const d = RAW_PAYLOAD.data;
-  const filterSA = document.getElementById('sel-sa-filter').value;
+  const d = ACTIVE_DATA || RAW_PAYLOAD.data;
+  if (!d || !d.lis) return;
+  const filterSA = document.getElementById('flt-sa').value !== 'All' ? document.getElementById('flt-sa').value : (document.getElementById('sel-sa-filter') ? document.getElementById('sel-sa-filter').value : '');
   const searchQ = document.getElementById('inp-search').value.trim().toLowerCase();
 
   const matchSA = r => (!filterSA || r.name === filterSA) && (!searchQ || r.name.toLowerCase().includes(searchQ));
@@ -1349,7 +1836,8 @@ function renderTables() {
 
 // ------------------------------------------------ RENDER TOP 10 ALERT ------------------------------------------------
 function renderTop10Alert() {
-  const d = RAW_PAYLOAD.data;
+  const d = ACTIVE_DATA || RAW_PAYLOAD.data;
+  if (!d || !d.lis) return;
   const stoList = [...(d.lis.sto || [])];
   stoList.sort((a, b) => (b.ggn.total || 0) - (a.ggn.total || 0));
   const top10 = stoList.slice(0, 10);
@@ -1399,7 +1887,8 @@ function renderTop10Alert() {
 
 // ------------------------------------------------ RENDER ANALYTICS ------------------------------------------------
 function renderAnalytics() {
-  const d = RAW_PAYLOAD.data;
+  const d = ACTIVE_DATA || RAW_PAYLOAD.data;
+  if (!d || !d.lis) return;
   const sa = d.lis.sa || [];
   const labels = sa.map(r => r.name);
 
@@ -1548,8 +2037,51 @@ function updateTimerDisplay(sec) {
 // ------------------------------------------------ EVENT LISTENERS ------------------------------------------------
 document.getElementById('btn-refresh-data').addEventListener('click', () => loadData(true));
 document.getElementById('sel-sync-interval').addEventListener('change', resetCountdown);
-document.getElementById('sel-sa-filter').addEventListener('change', renderTables);
 document.getElementById('inp-search').addEventListener('input', renderTables);
+
+// Event Listeners for Active Filters
+['flt-tanggal', 'flt-district', 'flt-sa', 'flt-gaul', 'flt-gamas', 'flt-tiket2', 'flt-ffg'].forEach(id => {
+  const el = document.getElementById(id);
+  if (el) {
+    el.addEventListener('change', () => {
+      if (id === 'flt-sa') {
+        const v = el.value;
+        const selSA2 = document.getElementById('sel-sa-filter');
+        if (selSA2) selSA2.value = (v === 'All' ? '' : v);
+      }
+      applyFiltersAndRender();
+    });
+  }
+});
+
+// Secondary SA Filter in Toolbar
+const selSA2 = document.getElementById('sel-sa-filter');
+if (selSA2) {
+  selSA2.addEventListener('change', e => {
+    const v = e.target.value;
+    const fltSA = document.getElementById('flt-sa');
+    if (fltSA) fltSA.value = v ? v : 'All';
+    applyFiltersAndRender();
+  });
+}
+
+// Reset Filters Button
+const btnReset = document.getElementById('btn-reset-filters');
+if (btnReset) {
+  btnReset.addEventListener('click', () => {
+    document.getElementById('flt-tanggal').value = DEFAULT_FILTERS.tanggal;
+    document.getElementById('flt-district').value = 'BOGOR';
+    document.getElementById('flt-sa').value = 'All';
+    document.getElementById('flt-gaul').value = 'All';
+    document.getElementById('flt-gamas').value = 'All';
+    document.getElementById('flt-tiket2').value = 'All';
+    document.getElementById('flt-ffg').value = 'All';
+    document.getElementById('inp-search').value = '';
+    const selSA2 = document.getElementById('sel-sa-filter');
+    if (selSA2) selSA2.value = '';
+    applyFiltersAndRender();
+  });
+}
 
 // Switch Skema Warna Tabel
 document.getElementById('sel-color-mode').addEventListener('change', e => {

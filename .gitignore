@@ -11,6 +11,8 @@ wsa_*
 
 # Cache Server & Data Lokal
 dashboard/cache.csv
+dashboard/cache.json
+dashboard/cache_payload.json
 *.log
 
 # Python Cache

@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """
-Dashboard Monitoring Tiket Harian (versi web)
-Sumber data : Google Sheet (tab DASHBOARD), harus bisa dilihat siapa saja yang punya link.
+Dashboard Monitoring Tiket Harian - NETPULSE
+Sumber data : Google Sheet (tab DASHBOARD, _DASH_CACHE, Service_Area)
 Jalankan    : python3 server.py   lalu buka http://localhost:8765
 """
 import csv
@@ -17,38 +17,40 @@ from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 from urllib.parse import urlparse, parse_qs
 
 SHEET_ID = "1Pu8n4tt0TiPec1_j31HJ5FgZdCPCuBwH6SWrEiXg7Bg"
-GID = "1357353552"
-EXPORT_URL = f"https://docs.google.com/spreadsheets/d/{SHEET_ID}/export?format=csv&gid={GID}"
+GID_DASHBOARD = "1357353552"
+GID_CACHE = "366740069"
+GID_SA = "821202101"
+
 PORT = int(os.environ.get("PORT", "8765"))
-CACHE_TTL = 30  # detik (agar update dari Google Sheet cepat terdeteksi)
+CACHE_TTL = 45  # detik
 
 BASE = os.path.dirname(os.path.abspath(__file__))
 STATIC = os.path.join(BASE, "static")
-CACHE_FILE = os.path.join(BASE, "cache.csv")
+CACHE_FILE = os.path.join(BASE, "cache_payload.json")
 SNAPSHOT_FILE = os.path.join(BASE, "snapshot.csv")
 
 _lock = threading.Lock()
-_state = {"csv": None, "fetched_at": 0, "source": None, "error": None}
+_state = {"payload": None, "fetched_at": 0}
 
 
 # ----------------------------------------------------------------- download
-def download_csv():
-    """Ambil CSV dari Google Sheet. Utamakan curl (memakai sertifikat sistem macOS)."""
+def download_sheet_csv(gid):
+    url = f"https://docs.google.com/spreadsheets/d/{SHEET_ID}/export?format=csv&gid={gid}"
     try:
         out = subprocess.run(
-            ["curl", "-sSL", "-f", "--max-time", "40", EXPORT_URL],
-            capture_output=True, timeout=60,
+            ["curl", "-sSL", "-f", "--max-time", "30", url],
+            capture_output=True, timeout=40,
         )
         if out.returncode == 0 and out.stdout:
             return out.stdout.decode("utf-8", errors="replace")
-        err = out.stderr.decode("utf-8", errors="replace").strip()
-    except Exception as e:  # curl tidak ada / timeout
-        err = str(e)
+    except Exception:
+        pass
     try:
-        with urllib.request.urlopen(EXPORT_URL, timeout=40) as r:
+        req = urllib.request.Request(url, headers={"User-Agent": "Mozilla/5.0"})
+        with urllib.request.urlopen(req, timeout=30) as r:
             return r.read().decode("utf-8", errors="replace")
     except Exception as e:
-        raise RuntimeError(f"Gagal mengunduh sheet: {err or e}")
+        raise RuntimeError(f"Gagal mengunduh sheet gid={gid}: {e}")
 
 
 def read_file(path):
@@ -56,38 +58,8 @@ def read_file(path):
         return f.read()
 
 
-def get_csv(force=False):
-    """Kembalikan (csv_text, source, fetched_at, error)."""
-    with _lock:
-        fresh = _state["csv"] and (time.time() - _state["fetched_at"] < CACHE_TTL)
-        if fresh and not force:
-            return _state["csv"], _state["source"], _state["fetched_at"], _state["error"]
-        try:
-            text = download_csv()
-            if text.lstrip().startswith("<"):
-                raise RuntimeError(
-                    "Google meminta login. Ubah akses sheet menjadi "
-                    "'Siapa saja yang memiliki link' (Viewer)."
-                )
-            _state.update(csv=text, fetched_at=time.time(), source="live", error=None)
-            with open(CACHE_FILE, "w", encoding="utf-8") as f:
-                f.write(text)
-        except Exception as e:
-            _state["error"] = str(e)
-            if os.path.exists(CACHE_FILE):
-                _state.update(csv=read_file(CACHE_FILE), source="cache",
-                              fetched_at=os.path.getmtime(CACHE_FILE))
-            elif os.path.exists(SNAPSHOT_FILE):
-                _state.update(csv=read_file(SNAPSHOT_FILE), source="snapshot",
-                              fetched_at=os.path.getmtime(SNAPSHOT_FILE))
-            else:
-                raise
-        return _state["csv"], _state["source"], _state["fetched_at"], _state["error"]
-
-
 # ------------------------------------------------------------------ parser
 def num(s):
-    """'1,608' -> 1608 ; '99.75%' -> 99.75 ; '' -> None"""
     s = (s or "").strip()
     if not s:
         return None
@@ -116,7 +88,6 @@ def quad(r, start):
 
 
 def parse_block(rows, header_idx, names):
-    """Dua tabel berdampingan: Service Area (kolom 0-12) dan STO (kolom 14-27)."""
     left, right = [], []
     j = header_idx + 2
     while j < len(rows):
@@ -136,7 +107,6 @@ def parse_block(rows, header_idx, names):
 def parse_sheet(text):
     text = text.replace("\r\r\n", "\n").replace("\r\n", "\n").replace("\r", "\n")
     rows = [r for r in csv.reader(io.StringIO(text))]
-
     data = {"meta": {}, "cards": {}, "lis": {"sa": [], "sto": []}, "ag": {"sa": [], "sto": []}, "ttr": []}
 
     for i, r in enumerate(rows):
@@ -172,6 +142,117 @@ def parse_sheet(text):
     return data
 
 
+def parse_tickets(cache_text):
+    rows = list(csv.reader(io.StringIO(cache_text)))
+    tickets = []
+    for r in rows[1:]:
+        if len(r) > 17 and r[7] == '0':  # WSA_EXCLUDE == 0
+            tickets.append([
+                r[1].strip() or r[0].strip(),  # 0: date (YYYY-MM-DD)
+                r[2].strip(),                  # 1: sto
+                r[3].strip(),                  # 2: district
+                r[4].strip(),                  # 3: sa
+                r[5].strip(),                  # 4: type (HVC / REGULER)
+                r[8].strip(),                  # 5: is_gaul (1 / 0)
+                r[9].strip(),                  # 6: is_gamas (1 / 0)
+                r[10].strip(),                 # 7: jenis_tiket2
+                r[11].strip(),                 # 8: is_ffg (1 / 0)
+                r[12].strip(),                 # 9: hvc_flag
+                r[14].strip(),                 # 10: c3 (1 / 0)
+                r[15].strip(),                 # 11: c3m (1 / 0)
+                r[16].strip(),                 # 12: c6 (1 / 0)
+                r[17].strip(),                 # 13: c24 (1 / 0)
+            ])
+    return tickets
+
+
+def parse_lis(sa_text):
+    rows = list(csv.reader(io.StringIO(sa_text)))
+    lis_map = {}
+    for r in rows[2:]:
+        if len(r) > 6 and r[2]:
+            sto = r[2].strip()
+            def to_n(val):
+                try: return int(val.replace(',', ''))
+                except: return 0
+            lis_map[sto] = {
+                "district": r[0].strip(),
+                "sa": r[1].strip(),
+                "sto": sto,
+                "total": to_n(r[3]),
+                "dia": to_n(r[4]),
+                "plat": to_n(r[5]),
+                "reg": to_n(r[6]),
+            }
+    return lis_map
+
+
+def get_payload(force=False):
+    with _lock:
+        fresh = _state.get("payload") and (time.time() - _state.get("fetched_at", 0) < CACHE_TTL)
+        if fresh and not force:
+            return _state["payload"]
+        try:
+            # 1. Download DASHBOARD
+            text_dash = download_sheet_csv(GID_DASHBOARD)
+            # 2. Download _DASH_CACHE
+            text_cache = download_sheet_csv(GID_CACHE)
+            # 3. Download Service_Area
+            text_sa = download_sheet_csv(GID_SA)
+
+            dash_data = parse_sheet(text_dash)
+            tickets = parse_tickets(text_cache)
+            lis_map = parse_lis(text_sa)
+
+            dates = sorted(list(set(t[0] for t in tickets)), reverse=True)
+            districts = sorted(list(set(t[2] for t in tickets if t[2])))
+            service_areas = sorted(list(set(t[3] for t in tickets if t[3])))
+            jenis_options = sorted(list(set(t[7] for t in tickets if t[7])))
+
+            payload = {
+                "source": "live",
+                "fetched_at": time.time(),
+                "sheet_url": f"https://docs.google.com/spreadsheets/d/{SHEET_ID}/edit?gid={GID_DASHBOARD}",
+                "data": dash_data,
+                "dates": dates,
+                "districts": districts,
+                "service_areas": service_areas,
+                "jenis_options": jenis_options,
+                "lis_map": lis_map,
+                "tickets": tickets,
+            }
+            _state["payload"] = payload
+            _state["fetched_at"] = time.time()
+            with open(CACHE_FILE, "w", encoding="utf-8") as f:
+                json.dump(payload, f)
+            return payload
+        except Exception as e:
+            if os.path.exists(CACHE_FILE):
+                try:
+                    with open(CACHE_FILE, "r", encoding="utf-8") as f:
+                        payload = json.load(f)
+                        payload["source"] = "cache"
+                        return payload
+                except Exception:
+                    pass
+            # Fallback snapshot
+            if os.path.exists(SNAPSHOT_FILE):
+                dash_data = parse_sheet(read_file(SNAPSHOT_FILE))
+                return {
+                    "source": "snapshot",
+                    "fetched_at": time.time(),
+                    "sheet_url": f"https://docs.google.com/spreadsheets/d/{SHEET_ID}/edit?gid={GID_DASHBOARD}",
+                    "data": dash_data,
+                    "dates": ["2026-11-02"],
+                    "districts": ["BOGOR"],
+                    "service_areas": ["BOGOR", "CIBINONG", "CILEUNGSI", "SUKABUMI", "SEMPLAK", "CIAWI", "PAGELARAN", "CIBADAK", "DRAMAGA", "KEDUNGHALANG", "PASIR MAUNG"],
+                    "jenis_options": ["FISIK", "LOGIK"],
+                    "lis_map": {},
+                    "tickets": [],
+                }
+            raise
+
+
 # ------------------------------------------------------------------ server
 class Handler(BaseHTTPRequestHandler):
     def log_message(self, fmt, *args):
@@ -183,6 +264,7 @@ class Handler(BaseHTTPRequestHandler):
         self.send_response(code)
         self.send_header("Content-Type", ctype)
         self.send_header("Content-Length", str(len(body)))
+        self.send_header("Access-Control-Allow-Origin", "*")
         self.send_header("Cache-Control", "no-store, no-cache, must-revalidate, max-age=0")
         self.send_header("Pragma", "no-cache")
         self.send_header("Expires", "0")
@@ -201,10 +283,7 @@ class Handler(BaseHTTPRequestHandler):
         if url.path == "/api/data":
             force = parse_qs(url.query).get("force", ["0"])[0] == "1"
             try:
-                text, source, fetched_at, error = get_csv(force)
-                payload = {"source": source, "fetched_at": fetched_at, "error": error,
-                           "sheet_url": f"https://docs.google.com/spreadsheets/d/{SHEET_ID}/edit?gid={GID}",
-                           "data": parse_sheet(text)}
+                payload = get_payload(force)
                 return self._send(200, json.dumps(payload, ensure_ascii=False), "application/json; charset=utf-8")
             except Exception as e:
                 return self._send(500, json.dumps({"error": str(e)}), "application/json; charset=utf-8")
@@ -212,11 +291,8 @@ class Handler(BaseHTTPRequestHandler):
 
 
 def main():
-    if "--test" in sys.argv:  # uji parser dengan snapshot lokal
-        print(json.dumps(parse_sheet(read_file(SNAPSHOT_FILE)), ensure_ascii=False, indent=1)[:3000])
-        return
     srv = ThreadingHTTPServer(("127.0.0.1", PORT), Handler)
-    print(f"Dashboard aktif di http://localhost:{PORT}  (Ctrl+C untuk berhenti)")
+    print(f"NETPULSE Server aktif di http://localhost:{PORT}  (Ctrl+C untuk berhenti)")
     try:
         srv.serve_forever()
     except KeyboardInterrupt:
@@ -225,4 +301,3 @@ def main():
 
 if __name__ == "__main__":
     main()
-
