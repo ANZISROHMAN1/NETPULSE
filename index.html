@@ -3,6 +3,9 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
+<meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+<meta http-equiv="Pragma" content="no-cache">
+<meta http-equiv="Expires" content="0">
 <title>NETPULSE - Branch Bogor Sukabumi</title>
 <link rel="icon" type="image/jpeg" href="/logo.jpg">
 <link rel="apple-touch-icon" href="/logo.jpg">
@@ -605,22 +608,25 @@
   /* ------------------------------------------------ SPLIT TABLE LAYOUT ------------------------------------------------ */
   .tables-grid-split {
     display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 16px;
-    padding: 14px;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+    gap: 20px;
+    padding: 16px;
     background: var(--bg-subtle);
   }
   .tables-grid-split.layout-stacked {
-    grid-template-columns: 1fr !important;
-    gap: 20px;
-    padding: 14px;
+    grid-template-columns: minmax(0, 1fr) !important;
+    gap: 24px;
+    padding: 16px;
   }
   .table-scroll-container {
-    overflow: auto;
+    overflow-x: auto;
+    overflow-y: auto;
+    min-width: 0;
+    width: 100%;
     border: 1px solid var(--border-color);
     border-radius: var(--radius-md);
     background: var(--bg-surface);
-    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
     max-height: 620px;
     position: relative;
   }
@@ -2973,14 +2979,6 @@ if (btnReset) {
   });
 }
 
-// Switch Skema Warna Tabel (jika ada)
-const selColorMode = document.getElementById('sel-color-mode');
-if (selColorMode) {
-  selColorMode.addEventListener('change', e => {
-    document.body.classList.remove('color-classic', 'color-heatmap');
-    document.body.classList.add(e.target.value === 'heatmap' ? 'color-heatmap' : 'color-classic');
-  });
-}
 
 // Switch Tab View (Tabel / Analytics / Top 10)
 document.getElementById('view-tabs').addEventListener('click', e => {
