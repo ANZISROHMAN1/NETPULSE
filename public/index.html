@@ -606,23 +606,32 @@
   .tables-grid-split {
     display: grid;
     grid-template-columns: 1fr 1fr;
-    gap: 0;
+    gap: 16px;
+    padding: 14px;
+    background: var(--bg-subtle);
   }
   .tables-grid-split.layout-stacked {
     grid-template-columns: 1fr !important;
+    gap: 20px;
+    padding: 14px;
   }
   .table-scroll-container {
-    overflow-x: auto;
-    border-right: 1px solid var(--border-color);
+    overflow: auto;
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-md);
+    background: var(--bg-surface);
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
     max-height: 620px;
     position: relative;
   }
-  .table-scroll-container:last-child {
-    border-right: none;
-  }
   .tables-grid-split.layout-stacked .table-scroll-container {
-    border-right: none !important;
-    border-bottom: 1px solid var(--border-color);
+    max-height: none;
+  }
+  /* Khusus tabel Blok 3 yang full-width langsung di dalam block-box */
+  .block-box > .table-scroll-container {
+    border: none;
+    border-radius: 0;
+    box-shadow: none;
     max-height: none;
   }
 
@@ -1110,7 +1119,7 @@
   .hidden { display: none !important; }
 </style>
 </head>
-<body class="color-classic">
+<body class="color-heatmap">
 
 <!-- NAVBAR -->
 <nav class="navbar">
@@ -1352,14 +1361,6 @@
         <button class="tab-btn" data-layout="stacked" title="Tabel bertingkat satu layar penuh">↕️ Full-Width</button>
       </div>
 
-      <!-- Theme Color Table Switcher -->
-      <div class="color-mode-select">
-        <label for="sel-color-mode">Skema Warna:</label>
-        <select class="form-select" id="sel-color-mode">
-          <option value="classic">🎨 Sheet Asli (Pastel)</option>
-          <option value="heatmap">🔥 Smart SLA Heatmap</option>
-        </select>
-      </div>
 
       <!-- Filter Dropdown SA -->
       <select class="form-select" id="sel-sa-filter">
@@ -2972,11 +2973,14 @@ if (btnReset) {
   });
 }
 
-// Switch Skema Warna Tabel
-document.getElementById('sel-color-mode').addEventListener('change', e => {
-  document.body.classList.remove('color-classic', 'color-heatmap');
-  document.body.classList.add(e.target.value === 'heatmap' ? 'color-heatmap' : 'color-classic');
-});
+// Switch Skema Warna Tabel (jika ada)
+const selColorMode = document.getElementById('sel-color-mode');
+if (selColorMode) {
+  selColorMode.addEventListener('change', e => {
+    document.body.classList.remove('color-classic', 'color-heatmap');
+    document.body.classList.add(e.target.value === 'heatmap' ? 'color-heatmap' : 'color-classic');
+  });
+}
 
 // Switch Tab View (Tabel / Analytics / Top 10)
 document.getElementById('view-tabs').addEventListener('click', e => {
