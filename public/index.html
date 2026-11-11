@@ -1587,6 +1587,9 @@ const SA_LIST_ORDER = [
 // Helper Formatters
 const fmt = n => n == null ? '-' : Number(n).toLocaleString('id-ID');
 const pct = n => n == null ? '-' : Number(n).toFixed(2) + '%';
+const round2 = v => Math.round(v * 100) / 100;
+const calcAvail = (ggn, lis) => lis > 0 ? Math.min(100, Math.max(0, ((1 - ggn / lis) * 100))) : 100.0;
+const calcAG = (gaul, ggn) => ggn > 0 ? Math.min(100, Math.max(0, ((1 - gaul / ggn) * 100))) : 100.0;
 
 function formatDisplayDate(isoStr) {
   if (!isoStr) return '';
@@ -2413,6 +2416,10 @@ function renderTables() {
     t: saLis.reduce((a,r) => a + (r[k].total||0), 0)
   });
   const tG1 = sum1('ggn'), tL1 = sum1('lis');
+  const availTotD = tL1.d > 0 ? round2(calcAvail(tG1.d, tL1.d)) : (tG1.d > 0 ? 0 : 100.0);
+  const availTotP = tL1.p > 0 ? round2(calcAvail(tG1.p, tL1.p)) : (tG1.p > 0 ? 0 : 100.0);
+  const availTotR = tL1.r > 0 ? round2(calcAvail(tG1.r, tL1.r)) : (tG1.r > 0 ? 0 : 100.0);
+  const availTotAll = tL1.t > 0 ? round2(calcAvail(tG1.t, tL1.t)) : (tG1.t > 0 ? 0 : 100.0);
   hSaLis += `
     <tr class="row-total">
       <td class="text-left font-bold">TOTAL</td>
@@ -2421,7 +2428,10 @@ function renderTables() {
       ${drill(tG1.r, { title: 'Semua Service Area - Tiket Reguler', type: 'REGULER' })}
       ${drill(tG1.t, { title: 'Semua Service Area - Total Tiket GGN' }, 'font-bold')}
       <td>${fmt(tL1.d)}</td><td>${fmt(tL1.p)}</td><td>${fmt(tL1.r)}</td><td class="font-bold">${fmt(tL1.t)}</td>
-      <td class="cell-pink">-</td><td class="cell-pink">-</td><td class="cell-pink">-</td><td class="cell-pink font-bold">-</td>
+      <td class="cell-pink ${getSlaClass(availTotD)}">${pct(availTotD)}</td>
+      <td class="cell-pink ${getSlaClass(availTotP)}">${pct(availTotP)}</td>
+      <td class="cell-pink ${getSlaClass(availTotR)}">${pct(availTotR)}</td>
+      <td class="cell-pink font-bold ${getSlaClass(availTotAll)}">${pct(availTotAll)}</td>
     </tr>
     </tbody>
   `;
@@ -2463,6 +2473,32 @@ function renderTables() {
       </tr>
     `;
   });
+  // Total Row STO Blok 1
+  const sumSto1 = k => ({
+    d: stoLis.reduce((a,r) => a + (r[k].diamond||0), 0),
+    p: stoLis.reduce((a,r) => a + (r[k].platinum||0), 0),
+    r: stoLis.reduce((a,r) => a + (r[k].reguler||0), 0),
+    t: stoLis.reduce((a,r) => a + (r[k].total||0), 0)
+  });
+  const tGSto1 = sumSto1('ggn'), tLSto1 = sumSto1('lis');
+  const availStoD = tLSto1.d > 0 ? round2(calcAvail(tGSto1.d, tLSto1.d)) : (tGSto1.d > 0 ? 0 : 100.0);
+  const availStoP = tLSto1.p > 0 ? round2(calcAvail(tGSto1.p, tLSto1.p)) : (tGSto1.p > 0 ? 0 : 100.0);
+  const availStoR = tLSto1.r > 0 ? round2(calcAvail(tGSto1.r, tLSto1.r)) : (tGSto1.r > 0 ? 0 : 100.0);
+  const availStoAll = tLSto1.t > 0 ? round2(calcAvail(tGSto1.t, tLSto1.t)) : (tGSto1.t > 0 ? 0 : 100.0);
+  hStoLis += `
+    <tr class="row-total">
+      <td colspan="2" class="text-left font-bold" style="padding-left:14px;">TOTAL</td>
+      ${drill(tGSto1.d, { title: 'Semua STO - Tiket Diamond', hvc_flag: 'HVC_DIAMOND' })}
+      ${drill(tGSto1.p, { title: 'Semua STO - Tiket Platinum', hvc_flag: 'HVC_PLATINUM' })}
+      ${drill(tGSto1.r, { title: 'Semua STO - Tiket Reguler', type: 'REGULER' })}
+      ${drill(tGSto1.t, { title: 'Semua STO - Total Tiket GGN' }, 'font-bold')}
+      <td>${fmt(tLSto1.d)}</td><td>${fmt(tLSto1.p)}</td><td>${fmt(tLSto1.r)}</td><td class="font-bold">${fmt(tLSto1.t)}</td>
+      <td class="cell-pink ${getSlaClass(availStoD)}">${pct(availStoD)}</td>
+      <td class="cell-pink ${getSlaClass(availStoP)}">${pct(availStoP)}</td>
+      <td class="cell-pink ${getSlaClass(availStoR)}">${pct(availStoR)}</td>
+      <td class="cell-pink font-bold ${getSlaClass(availStoAll)}">${pct(availStoAll)}</td>
+    </tr>
+  `;
   document.getElementById('tbl-sto-lis').innerHTML = hStoLis + '</tbody>';
 
   // 2. BLOK 2: SERVICE AREA (GAUL & AG)
@@ -2512,6 +2548,10 @@ function renderTables() {
     t: saAg.reduce((a,r) => a + (r[k].total||0), 0)
   });
   const tG2 = sum2('ggn'), tGaul2 = sum2('gaul');
+  const agTotD = tG2.d > 0 ? round2(calcAG(tGaul2.d, tG2.d)) : 100.0;
+  const agTotP = tG2.p > 0 ? round2(calcAG(tGaul2.p, tG2.p)) : 100.0;
+  const agTotR = tG2.r > 0 ? round2(calcAG(tGaul2.r, tG2.r)) : 100.0;
+  const agTotAll = tG2.t > 0 ? round2(calcAG(tGaul2.t, tG2.t)) : 100.0;
   hSaAg += `
     <tr class="row-total">
       <td class="text-left font-bold">TOTAL</td>
@@ -2523,7 +2563,10 @@ function renderTables() {
       ${drill(tGaul2.p, { title: 'Semua Service Area - Tiket GAUL Platinum', hvc_flag: 'HVC_PLATINUM', is_gaul: '1' })}
       ${drill(tGaul2.r, { title: 'Semua Service Area - Tiket GAUL Reguler', type: 'REGULER', is_gaul: '1' })}
       ${drill(tGaul2.t, { title: 'Semua Service Area - Total Tiket GAUL', is_gaul: '1' }, 'font-bold')}
-      <td class="cell-pink">-</td><td class="cell-pink">-</td><td class="cell-pink">-</td><td class="cell-pink font-bold">-</td>
+      <td class="cell-pink ${getSlaClass(agTotD, 'ag')}">${pct(agTotD)}</td>
+      <td class="cell-pink ${getSlaClass(agTotP, 'ag')}">${pct(agTotP)}</td>
+      <td class="cell-pink ${getSlaClass(agTotR, 'ag')}">${pct(agTotR)}</td>
+      <td class="cell-pink font-bold ${getSlaClass(agTotAll, 'ag')}">${pct(agTotAll)}</td>
     </tr>
     </tbody>
   `;
@@ -2568,6 +2611,35 @@ function renderTables() {
       </tr>
     `;
   });
+  // Total Row STO Blok 2
+  const sumSto2 = k => ({
+    d: stoAg.reduce((a,r) => a + (r[k].diamond||0), 0),
+    p: stoAg.reduce((a,r) => a + (r[k].platinum||0), 0),
+    r: stoAg.reduce((a,r) => a + (r[k].reguler||0), 0),
+    t: stoAg.reduce((a,r) => a + (r[k].total||0), 0)
+  });
+  const tGSto2 = sumSto2('ggn'), tGaulSto2 = sumSto2('gaul');
+  const agStoD = tGSto2.d > 0 ? round2(calcAG(tGaulSto2.d, tGSto2.d)) : 100.0;
+  const agStoP = tGSto2.p > 0 ? round2(calcAG(tGaulSto2.p, tGSto2.p)) : 100.0;
+  const agStoR = tGSto2.r > 0 ? round2(calcAG(tGaulSto2.r, tGSto2.r)) : 100.0;
+  const agStoAll = tGSto2.t > 0 ? round2(calcAG(tGaulSto2.t, tGSto2.t)) : 100.0;
+  hStoAg += `
+    <tr class="row-total">
+      <td colspan="2" class="text-left font-bold" style="padding-left:14px;">TOTAL</td>
+      ${drill(tGSto2.d, { title: 'Semua STO - Tiket GGN Diamond', hvc_flag: 'HVC_DIAMOND' })}
+      ${drill(tGSto2.p, { title: 'Semua STO - Tiket GGN Platinum', hvc_flag: 'HVC_PLATINUM' })}
+      ${drill(tGSto2.r, { title: 'Semua STO - Tiket GGN Reguler', type: 'REGULER' })}
+      ${drill(tGSto2.t, { title: 'Semua STO - Total Tiket GGN' }, 'font-bold')}
+      ${drill(tGaulSto2.d, { title: 'Semua STO - Tiket GAUL Diamond', hvc_flag: 'HVC_DIAMOND', is_gaul: '1' })}
+      ${drill(tGaulSto2.p, { title: 'Semua STO - Tiket GAUL Platinum', hvc_flag: 'HVC_PLATINUM', is_gaul: '1' })}
+      ${drill(tGaulSto2.r, { title: 'Semua STO - Tiket GAUL Reguler', type: 'REGULER', is_gaul: '1' })}
+      ${drill(tGaulSto2.t, { title: 'Semua STO - Total Tiket GAUL', is_gaul: '1' }, 'font-bold')}
+      <td class="cell-pink ${getSlaClass(agStoD, 'ag')}">${pct(agStoD)}</td>
+      <td class="cell-pink ${getSlaClass(agStoP, 'ag')}">${pct(agStoP)}</td>
+      <td class="cell-pink ${getSlaClass(agStoR, 'ag')}">${pct(agStoR)}</td>
+      <td class="cell-pink font-bold ${getSlaClass(agStoAll, 'ag')}">${pct(agStoAll)}</td>
+    </tr>
+  `;
   document.getElementById('tbl-sto-ag').innerHTML = hStoAg + '</tbody>';
 
   // 3. BLOK 3: TTR COMPLY
@@ -2618,6 +2690,36 @@ function renderTables() {
       </tr>
     `;
   });
+  // Total Row TTR
+  const sumTtr = (grp, key) => ttr.reduce((a, r) => a + ((r[grp] && r[grp][key]) || 0), 0);
+  const ttrTotTickets = ttr.reduce((a, r) => a + (r.total || 0), 0);
+  const dComp = sumTtr('diamond', 'comply'), dNot = sumTtr('diamond', 'not_comply'), dTot = sumTtr('diamond', 'total');
+  const mComp = sumTtr('manja', 'comply'), mNot = sumTtr('manja', 'not_comply'), mTot = sumTtr('manja', 'total');
+  const pComp = sumTtr('platinum', 'comply'), pNot = sumTtr('platinum', 'not_comply'), pTot = sumTtr('platinum', 'total');
+  const rComp = sumTtr('reguler', 'comply'), rNot = sumTtr('reguler', 'not_comply'), rTot = sumTtr('reguler', 'total');
+  const dNotCls = dNot > 0 ? 'text-danger font-bold bg-danger-subtle' : '';
+  const mNotCls = mNot > 0 ? 'text-danger font-bold bg-danger-subtle' : '';
+  const pNotCls = pNot > 0 ? 'text-danger font-bold bg-danger-subtle' : '';
+  const rNotCls = rNot > 0 ? 'text-danger font-bold bg-danger-subtle' : '';
+
+  hTtr += `
+    <tr class="row-total">
+      <td colspan="2" class="text-left font-bold" style="padding-left:14px;">TOTAL</td>
+      ${drill(ttrTotTickets, { title: 'Semua STO - Total Tiket TTR' }, 'font-bold')}
+      ${drill(dComp, { title: 'Semua STO - 3J Diamond Comply', ttr_group: 'diamond', ttr_status: 'comply' }, 'text-success font-bold')}
+      ${drill(dNot, { title: 'Semua STO - 3J Diamond NOT Comply', ttr_group: 'diamond', ttr_status: 'not_comply' }, dNotCls)}
+      ${drill(dTot, { title: 'Semua STO - 3J Diamond Total', ttr_group: 'diamond', ttr_status: 'total' })}
+      ${drill(mComp, { title: 'Semua STO - 3J Manja Comply', ttr_group: 'manja', ttr_status: 'comply' }, 'text-success font-bold')}
+      ${drill(mNot, { title: 'Semua STO - 3J Manja NOT Comply', ttr_group: 'manja', ttr_status: 'not_comply' }, mNotCls)}
+      ${drill(mTot, { title: 'Semua STO - 3J Manja Total', ttr_group: 'manja', ttr_status: 'total' })}
+      ${drill(pComp, { title: 'Semua STO - 6J Platinum Comply', ttr_group: 'platinum', ttr_status: 'comply' }, 'text-success font-bold')}
+      ${drill(pNot, { title: 'Semua STO - 6J Platinum NOT Comply', ttr_group: 'platinum', ttr_status: 'not_comply' }, pNotCls)}
+      ${drill(pTot, { title: 'Semua STO - 6J Platinum Total', ttr_group: 'platinum', ttr_status: 'total' })}
+      ${drill(rComp, { title: 'Semua STO - 24J Reguler Comply', ttr_group: 'reguler', ttr_status: 'comply' }, 'text-success font-bold')}
+      ${drill(rNot, { title: 'Semua STO - 24J Reguler NOT Comply', ttr_group: 'reguler', ttr_status: 'not_comply' }, rNotCls)}
+      ${drill(rTot, { title: 'Semua STO - 24J Reguler Total', ttr_group: 'reguler', ttr_status: 'total' })}
+    </tr>
+  `;
   document.getElementById('tbl-ttr').innerHTML = hTtr + '</tbody>';
 }
 
