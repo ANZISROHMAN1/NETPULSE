@@ -134,8 +134,11 @@ def parse_lis(sa_text):
             }
     return lis_map
 
+_LAST_VALID_TICKETS = []
+
 class handler(BaseHTTPRequestHandler):
     def do_GET(self):
+        global _LAST_VALID_TICKETS
         try:
             text_dash = fetch_csv(GID_DASHBOARD)
             text_cache = fetch_csv(GID_CACHE)
@@ -144,6 +147,11 @@ class handler(BaseHTTPRequestHandler):
             dash_data = parse_sheet(text_dash)
             tickets = parse_tickets(text_cache)
             lis_map = parse_lis(text_sa)
+
+            if len(tickets) > 0:
+                _LAST_VALID_TICKETS = tickets
+            elif len(_LAST_VALID_TICKETS) > 0:
+                tickets = _LAST_VALID_TICKETS
 
             dates = sorted(list(set(t[0] for t in tickets)), reverse=True)
             districts = sorted(list(set(t[2] for t in tickets if t[2])))

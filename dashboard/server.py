@@ -207,6 +207,19 @@ def get_payload(force=False):
             tickets = parse_tickets(text_cache)
             lis_map = parse_lis(text_sa)
 
+            # Jika _DASH_CACHE di Google Sheet sedang di-sync/rebuild (kosong), gunakan cache tiket terakhir yang valid
+            if len(tickets) == 0:
+                if _state.get("payload") and len(_state["payload"].get("tickets", [])) > 0:
+                    tickets = _state["payload"]["tickets"]
+                elif os.path.exists(CACHE_FILE):
+                    try:
+                        with open(CACHE_FILE, "r", encoding="utf-8") as f:
+                            saved = json.load(f)
+                            if len(saved.get("tickets", [])) > 0:
+                                tickets = saved["tickets"]
+                    except Exception:
+                        pass
+
             dates = sorted(list(set(t[0] for t in tickets)), reverse=True)
             districts = sorted(list(set(t[2] for t in tickets if t[2])))
             service_areas = sorted(list(set(t[3] for t in tickets if t[3])))
